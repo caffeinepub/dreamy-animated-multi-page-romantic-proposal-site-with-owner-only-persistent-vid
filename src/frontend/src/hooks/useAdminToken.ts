@@ -33,9 +33,15 @@ export function useAdminToken() {
     setIsChecking(false);
   }, []);
 
+  const setAdminAccess = () => {
+    sessionStorage.setItem(ADMIN_TOKEN_KEY, VALID_TOKEN);
+    setIsAdmin(true);
+  };
+
   return {
     isAdmin,
     isChecking,
     token: isAdmin ? sessionStorage.getItem(ADMIN_TOKEN_KEY) : null,
+    setAdminAccess,
   };
 }

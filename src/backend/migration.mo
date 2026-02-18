@@ -1,57 +1,75 @@
 import Map "mo:core/Map";
 import List "mo:core/List";
+import Text "mo:core/Text";
+import Principal "mo:core/Principal";
 import Storage "blob-storage/Storage";
 
 module {
   type OldActor = {
-    liveEventsVar : Map.Map<Text, OldLiveEvent>;
-    adminToken : Text;
-  };
-
-  type OldLiveEvent = {
-    title : Text;
-    description : Text;
-    startTime : Int;
-    endTime : Int;
-    isActive : Bool;
-    streamUrl : Text;
+    ratingImages : List.List<{
+      uploaderName : Text;
+      uploadTime : Int;
+      imageBlob : Storage.ExternalBlob;
+    }>;
+    bulkGeneratorKey : ?{
+      key : Text;
+    };
+    commentLists : Map.Map<Text, {
+      name : Text;
+      comments : List.List<{
+        text : Text;
+        used : Bool;
+      }>;
+    }>;
+    chatMessages : List.List<{
+      sender : Text;
+      timestamp : Int;
+      message : Text;
+    }>;
+    userProfiles : Map.Map<Principal, {
+      name : Text;
+    }>;
+    liveListApps : Map.Map<Text, {
+      appName : Text;
+      usernames : List.List<Text>;
+    }>;
   };
 
   type NewActor = {
-    commentLists : Map.Map<Text, CommentList>;
-    bulkGeneratorKey : ?BulkGeneratorKey;
-    ratingImages : List.List<RatingImage>;
-    chatMessages : List.List<ChatMessage>;
+    ratingImages : List.List<{
+      uploaderName : Text;
+      uploadTime : Int;
+      imageBlob : Storage.ExternalBlob;
+    }>;
+    bulkGeneratorKey : ?{
+      key : Text;
+    };
+    commentLists : Map.Map<Text, {
+      name : Text;
+      comments : List.List<{
+        text : Text;
+        used : Bool;
+      }>;
+    }>;
+    chatMessages : List.List<{
+      sender : Text;
+      timestamp : Int;
+      message : Text;
+    }>;
+    userProfiles : Map.Map<Principal, {
+      name : Text;
+    }>;
+    liveListApps : Map.Map<Text, {
+      appName : Text;
+      usernames : List.List<Text>;
+    }>;
+    singleUseTracker : Map.Map<Text, ()>;
   };
 
-  type Comment = {
-    text : Text;
-    used : Bool;
-  };
-
-  type CommentList = {
-    name : Text;
-    comments : List.List<Comment>;
-  };
-
-  type BulkGeneratorKey = {
-    key : Text;
-  };
-
-  type RatingImage = {
-    uploaderName : Text;
-    uploadTime : Int;
-    imageBlob : Storage.ExternalBlob;
-  };
-
-  type ChatMessage = {
-    sender : Text;
-    timestamp : Int;
-    message : Text;
-  };
-
-  public func run(_old : OldActor) : NewActor {
-    let commentLists = Map.empty<Text, CommentList>();
-    { commentLists; bulkGeneratorKey = null; ratingImages = List.empty<RatingImage>(); chatMessages = List.empty<ChatMessage>() };
+  public func run(old : OldActor) : NewActor {
+    {
+      old with
+      singleUseTracker = Map.empty<Text, ()>()
+    };
   };
 };

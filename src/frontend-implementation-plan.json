@@ -1,300 +1,32 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Comment Generator Panel UI rebuild (Customer View + Upload Section + Admin Panel)",
+  "title": "Single-comment per device-per-list UX enforcement (Customer View)",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Rebuild information architecture with a segmented top-level navigation for Customer View, Upload Section, and Admin Panel, with active section highlighted and client-side switching.",
-      "acceptanceCriteria": [
-        "The main navigation shows three primary sections: Customer View, Upload Section, Admin Panel.",
-        "Switching sections updates the content area without full page reload.",
-        "Active/selected section is visually distinct (pill/segmented control style) and matches the screenshot layout closely on mobile widths."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Update TanStack Router to use three primary section routes (Customer View, Upload Section, Admin Panel) and ensure navigation between them is SPA-based without full reload."
-        },
-        {
-          "path": "frontend/src/components/TopSegmentedNav.tsx",
-          "operation": "create",
-          "description": "Create a mobile-first segmented control navigation component rendering the three top-level sections with an active pill highlight (use shadcn-ui Button styles where appropriate). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Replace the current header navigation usage with the new TopSegmentedNav placed at the top-level layout so it appears consistently across sections."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add global utility classes for segmented navigation styling and active state visuals to match the screenshots (rounded pill, soft borders/shadows, mobile spacing)."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Implement Customer View with Single and Bulk Comment Generator cards that require selecting a Comment List and generating via backend, matching screenshot styling and mobile-first layout.",
+      "summary": "Persist a browser device identifier and enforce one single-comment generation per list per device in the Customer View UI, including disable state and clear English errors, without changing bulk generation behavior.",
       "acceptanceCriteria": [
-        "Customer View shows a prominent heading and subtitle matching the screenshot’s structure (English text).",
-        "Single Comment Generator: user must select a comment list; clicking generate returns one comment and marks it as used for that user/device identity (see backend requirements).",
-        "Bulk Comment Generator: user must select a comment list and enter number of comments; clicking generate returns that many available comments (or as many as available) and marks them used.",
-        "UI components (cards, inputs, buttons) visually follow the screenshot style: rounded containers, soft shadows, and a blue→teal gradient primary button."
+        "On first successful generation for a selected list, the UI stores that the current device has used that list for single generation and prevents further single generations for that list on the same browser/device.",
+        "If the backend rejects the request due to the one-per-device-per-list rule (e.g., after clearing local storage or on a second tab), the UI shows a clear English error message and the single-generate button ends up disabled for that list.",
+        "The disable/error behavior applies to all users (no admin/user exceptions).",
+        "Bulk comment generation UI/behavior remains unchanged."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CustomerViewPage.tsx",
+          "path": "frontend/src/lib/deviceId.ts",
           "operation": "create",
-          "description": "Build the Customer View screen with heading/subtitle plus two cards (Single Comment Generator and Bulk Comment Generator) that: (a) fetch available comment lists, (b) require list selection, (c) call backend functions to generate results, and (d) show generated output with copy actions; use shadcn-ui Card/Input/Select/Button patterns as available. Verify the component's usage instructions before implementing."
+          "description": "Add small localStorage utilities to (1) generate and persist a stable per-browser deviceId and (2) persist/query per-list single-generation usage state (e.g., used listNames set) for the single comment generator flow only."
         },
         {
           "path": "frontend/src/hooks/useCommentGenerator.ts",
-          "operation": "create",
-          "description": "Add React Query hooks to load available comment lists and perform single/bulk generation using the existing actor from useActor; centralize loading/error states for Customer View."
-        },
-        {
-          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Add shared UI utilities for screenshot-like cards and primary gradient buttons (blue→teal) used by Customer View generators."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Implement Upload Section with an Upload Rating Image card (name + file picker) that uploads image blob and metadata to backend and shows success/reset state.",
-      "acceptanceCriteria": [
-        "Upload Section contains an “Upload Rating Image” card with the two inputs (name + file) and an upload button/action.",
-        "Selecting an image and submitting uploads the image blob to the backend and stores the uploader name + timestamp.",
-        "After successful upload, the UI shows a success confirmation and clears the form (or resets to initial state).",
-        "All user-facing text is English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/UploadSectionPage.tsx",
-          "operation": "create",
-          "description": "Create the Upload Section screen with a single Upload Rating Image card including name input, image file picker, upload progress/disabled state, and a success confirmation that resets the form after completion. Use the blob-storage ExternalBlob API to convert selected files to ExternalBlob for upload and rely on direct URL patterns for previews when needed. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useRatingImages.ts",
-          "operation": "create",
-          "description": "Add React Query mutation hook to upload a rating image (uploaderName + ExternalBlob) and query invalidation hooks used by the Admin Images tab."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add any Upload Section-specific styling utilities to keep spacing, rounded containers, and gradient CTA consistent with screenshots."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Implement Admin Panel screen layout with secondary tabs (Comments, Images, Chat, Settings) and keep access gated by existing caffeineAdminToken mechanism without modifying immutable auth hooks.",
-      "acceptanceCriteria": [
-        "Admin Panel route/content is inaccessible without a valid caffeineAdminToken; a clear access denied message is shown otherwise.",
-        "Admin Panel shows secondary tabs: Comments, Images, Chat, Settings, with the active tab highlighted similar to the screenshots.",
-        "Tab switching changes the visible admin content without leaving the Admin Panel section.",
-        "No edits are made to immutable auth hook files; admin gating composes existing logic."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "create",
-          "description": "Create the Admin Panel page with header/subtitle and a secondary tab bar (Comments/Images/Chat/Settings) that switches visible content within the page; wrap admin-only content with the existing AdminTokenGate component (do not change auth hooks). Use shadcn-ui Card/Button where appropriate. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wire the Admin Panel route into the router and ensure it is guarded by AdminTokenGate so unauthorized users see the existing access denied UI."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add CSS utilities for Admin Panel secondary tabs (pill-like active highlight and icon/text alignment) to match screenshots."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Admin Panel Comments tab: implement comment list management UI (create list, select list, manage counts, reset/delete, add comments bulk/single, per-comment delete, totals summary) matching screenshots.",
-      "acceptanceCriteria": [
-        "Admin can create a new list by name; the list appears under Existing Lists immediately after creation.",
-        "Admin can select a list to manage and sees a “Managing: <ListName>” header.",
-        "Admin can add comments in bulk via textarea (one per line) and via a single-comment input; successful add updates counts and comment list.",
-        "Admin can delete individual comments and delete an entire list.",
-        "Admin can reset usage (used/available counts) for the selected list (behavior defined in backend).",
-        "Admin sees a totals/summary area showing total comments per list (and/or available/used) similar to screenshot structure.",
-        "UI closely matches screenshot layout, including pill buttons for bulk/single mode and rounded cards."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
-          "operation": "create",
-          "description": "Implement the Admin Comments tab UI: create new list card, existing lists selector/list with lock icons, managing section with available/used counts plus reset/delete controls, bulk/single add modes with pill switch, comment list with per-item delete, and a totals summary card. Use shadcn-ui Card/Input/Textarea/Button components as available. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "create",
-          "description": "Add React Query hooks for admin comment management: create/delete lists, load lists, load selected list comments, add single/bulk comments, delete comment, reset list usage, and load totals/summary; ensure queries invalidate appropriately on mutations."
-        },
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "modify",
-          "description": "Wire AdminCommentsTab into the Admin Panel secondary tab switching so it renders when the Comments tab is active."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add CSS utilities for screenshot-like pills, counters/badges (available/used), lock-icon list rows, and rounded card sections used in Comments tab."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Admin Settings tab: manage Bulk Generator Access Key (status, masked display, reset, set/update with show/hide) and enforce key requirement for Bulk generation on Customer View via backend validation.",
-      "acceptanceCriteria": [
-        "Admin can set/update an access key; backend persists it across reloads/upgrades.",
-        "Admin can reset/remove the key.",
-        "UI shows masked key when set and an explicit status indicator (set/not set).",
-        "Customer Bulk Comment Generator prompts for the access key when required and blocks generation when missing/incorrect.",
-        "Access key validation occurs against backend-stored value (not hardcoded in frontend)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
-          "operation": "create",
-          "description": "Create Settings tab UI matching screenshots for Bulk Generator Access Key: status chip (Key Set/Not Set), masked key display, reset action, input for new key with show/hide toggle, and Update Key button that calls backend. Use shadcn-ui components where appropriate. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useBulkGeneratorKey.ts",
-          "operation": "create",
-          "description": "Add React Query hooks to read key status/masked value and perform set/reset operations; expose loading and error states for Settings tab and for Customer View key requirement checks."
+          "description": "Update the single comment generation hook to require a deviceId and pass it to the backend generateSingleComment call; keep bulk generation hooks unchanged."
         },
         {
           "path": "frontend/src/pages/CustomerViewPage.tsx",
           "operation": "modify",
-          "description": "Update Bulk Comment Generator card to: (a) check whether a key is required, (b) prompt for access key input when required, and (c) pass the access key to the backend for bulk generation; show clear English error messaging when missing/incorrect."
-        },
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "modify",
-          "description": "Wire AdminSettingsTab into the Admin Panel secondary tab switching so it renders when the Settings tab is active."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Admin Images tab: list uploaded rating images with uploader name, timestamp, thumbnail preview, and delete action, including empty state.",
-      "acceptanceCriteria": [
-        "Admin can see uploaded items with name + timestamp + preview.",
-        "Admin can delete an uploaded image; it disappears from the list and is removed from backend storage.",
-        "If no images exist, the UI shows a clear empty-state message in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminImagesTab.tsx",
-          "operation": "create",
-          "description": "Implement Images tab UI that fetches uploaded rating images, renders a mobile-friendly list/grid with uploader name, formatted timestamp, and image thumbnail using blob-storage ExternalBlob getDirectURL() for previews; support delete actions and an English empty state. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "modify",
-          "description": "Wire AdminImagesTab into the Admin Panel secondary tab switching so it renders when the Images tab is active."
-        },
-        {
-          "path": "frontend/src/hooks/useRatingImages.ts",
-          "operation": "modify",
-          "description": "Extend rating image hooks to include list and delete operations for admin usage (React Query queries + mutations + invalidation)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "summary": "Admin Chat tab: implement a simple message composer and ordered message list, persisted via backend, with empty state and consistent styling.",
-      "acceptanceCriteria": [
-        "Admin can add a message (text) and it appears in the message list.",
-        "Messages are persisted in backend storage and load on page refresh.",
-        "If no messages exist, show an English empty-state message.",
-        "UI is mobile-friendly and visually consistent with the Admin Panel cards/tabs."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminChatTab.tsx",
-          "operation": "create",
-          "description": "Implement Chat tab with message input/composer and ordered message list (formatted timestamps), including an English empty state; use shadcn-ui Card/Input/Textarea/Button patterns as available. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useChatMessages.ts",
-          "operation": "create",
-          "description": "Add React Query hooks to load chat history and add new messages, ensuring refetch/invalidation so the list updates immediately and persists across refresh."
-        },
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "modify",
-          "description": "Wire AdminChatTab into the Admin Panel secondary tab switching so it renders when the Chat tab is active."
-        }
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "summary": "Apply consistent screenshot-like visual theme across Customer View, Upload Section, and Admin Panel (pastel background, subtle shapes, rounded cards, gradient primary buttons, mobile-first typography/spacing).",
-      "acceptanceCriteria": [
-        "All three sections share a consistent background and card styling that closely resembles the screenshots.",
-        "Primary actions use a blue→teal gradient button treatment with rounded corners.",
-        "Typography and spacing are mobile-first and match the screenshot proportions closely."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Define shared theme utilities (pastel surfaces, rounded card borders/shadows, gradient primary buttons, soft separators, and mobile-first spacing) and apply them via classNames from the new pages/tabs."
-        },
-        {
-          "path": "frontend/src/components/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Update layout structure to match screenshot spacing (top padding, centered max widths, consistent section containers) and ensure the background/theme is visible behind all cards."
-        },
-        {
-          "path": "frontend/src/pages/CustomerViewPage.tsx",
-          "operation": "modify",
-          "description": "Apply the shared theme styling (cards, headings, gradients, spacing) so Customer View closely matches the screenshots; keep all user-facing text in English."
-        },
-        {
-          "path": "frontend/src/pages/UploadSectionPage.tsx",
-          "operation": "modify",
-          "description": "Apply the shared theme styling (cards, headings, gradients, spacing) so Upload Section closely matches the screenshots; keep all user-facing text in English."
-        },
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "modify",
-          "description": "Apply the shared theme styling (cards, headings, gradients, spacing) so Admin Panel closely matches the screenshots; keep all user-facing text in English."
-        }
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "summary": "Add a static generated pastel geometric/confetti background image under frontend/public/assets/generated and render it as the app background.",
-      "acceptanceCriteria": [
-        "A generated background image exists in frontend/public/assets/generated and is referenced by the UI.",
-        "The background is visible behind cards and matches the screenshot vibe (pastel, subtle shapes).",
-        "No backend endpoints are used to serve the background image."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/public/assets/generated/admin-bg.dim_1600x900.png",
-          "operation": "create",
-          "description": "Add the required static generated background image asset: frontend/public/assets/generated/admin-bg.dim_1600x900.png."
-        },
-        {
-          "path": "frontend/src/components/SiteLayout.tsx",
-          "operation": "modify",
-          "description": "Render the static background asset as the page backdrop (behind content/cards) using a layout-level background layer so it is not served from the backend."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add CSS to support background image placement (full-screen cover/contain as appropriate, subtle overlay for readability) while keeping cards readable and screenshot-like."
+          "description": "Implement the Customer View single generator restriction: load/ensure deviceId, detect if the selected single list is already used for this device, disable the single-generate button accordingly, persist used-on-success, and on backend rejection show an English error then disable for that list; ensure bulk generator UI/logic is unchanged and do not modify any files under frontend/src/components/ui."
         }
       ]
     }

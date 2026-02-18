@@ -10,8 +10,10 @@ import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import Array "mo:core/Array";
 
+import Nat "mo:core/Nat";
 import Migration "migration";
 
+// DATA MIGRATION: Specify data transformation function from <migration.mo> in with clause.
 (with migration = Migration.run)
 actor {
   // COMMENT LIST MANAGEMENT
@@ -45,9 +47,10 @@ actor {
   };
 
   let commentLists = Map.empty<Text, CommentList>();
+  let singleUseTracker = Map.empty<Text, ()>();
 
   // CUSTOMER VIEW
-  public query func getAvailableCommentLists() : async [Text] {
+  public query ({ caller }) func getAvailableCommentLists() : async [Text] {
     var result = List.empty<Text>();
     for ((name, _list) in commentLists.entries()) {
       result.add(name);
@@ -74,7 +77,14 @@ actor {
     };
   };
 
-  public shared ({ caller }) func generateSingleComment(listName : Text) : async Text {
+  public shared ({ caller }) func generateSingleComment(listName : Text, deviceId : Text) : async Text {
+    let trackerKey = listName # "_" # deviceId;
+
+    // Check if this device has already used the list
+    if (singleUseTracker.containsKey(trackerKey)) {
+      Runtime.trap("Each device can only generate one comment per list");
+    };
+
     switch (commentLists.get(listName)) {
       case (null) {
         Runtime.trap("List not found");
@@ -92,6 +102,9 @@ actor {
             );
             let updatedList = { list with comments = updatedComments };
             commentLists.add(listName, updatedList);
+
+            // Mark device as used for this list
+            singleUseTracker.add(trackerKey, ());
             return updatedComment.text;
           };
         };
@@ -335,7 +348,7 @@ actor {
       case (?stored) {
         let keyLength = stored.key.size();
         if (keyLength <= 4) {
-          ?("*" # stored.key);
+          ?("****" # stored.key);
         } else {
           let chars = stored.key.toArray();
           let len = keyLength;
@@ -479,6 +492,149 @@ actor {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.add(caller, profile);
+  };
+
+  // LIVE LIST CHECKING SECTION
+  type LiveListApp = {
+    appName : Text;
+    usernames : List.List<Text>;
+  };
+
+  type LiveListCheckResult = {
+    appName : Text;
+    matches : [Text];
+    matchCount : Nat;
+  };
+
+  type LiveListCheckSummary = {
+    totalMatches : Nat;
+    detailedResults : [LiveListCheckResult];
+  };
+
+  let liveListApps = Map.empty<Text, LiveListApp>();
+
+  // ADMIN SECTION FOR LIVE LIST
+  public shared ({ caller }) func addLiveListApp(appName : Text) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can add live list apps");
+    };
+
+    // Check if app already exists
+    if (liveListApps.containsKey(appName)) {
+      Runtime.trap("App with this name already exists");
+    };
+
+    let newApp = {
+      appName;
+      usernames = List.empty<Text>();
+    };
+    liveListApps.add(appName, newApp);
+  };
+
+  public shared ({ caller }) func addUsernamesToApp(appName : Text, newUsernames : [Text]) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can add usernames");
+    };
+
+    switch (liveListApps.get(appName)) {
+      case (null) {
+        Runtime.trap("App not found");
+      };
+      case (?app) {
+        for (username in newUsernames.values()) {
+          app.usernames.add(username);
+        };
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteLiveListApp(appName : Text) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can delete apps");
+    };
+
+    switch (liveListApps.get(appName)) {
+      case (null) {
+        Runtime.trap("App not found");
+      };
+      case (?_) {
+        liveListApps.remove(appName);
+      };
+    };
+  };
+
+  public shared ({ caller }) func resetUsernamesForApp(appName : Text) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can reset usernames");
+    };
+
+    switch (liveListApps.get(appName)) {
+      case (null) {
+        Runtime.trap("App not found");
+      };
+      case (?existingApp) {
+        let updatedApp = {
+          existingApp with usernames = List.empty<Text>();
+        };
+        liveListApps.add(appName, updatedApp);
+      };
+    };
+  };
+
+  public shared ({ caller }) func resetAllLiveListApps() : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can reset all apps");
+    };
+
+    liveListApps.clear();
+  };
+
+  public query ({ caller }) func getAvailableLiveListApps() : async [Text] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can view available apps");
+    };
+
+    var result = List.empty<Text>();
+    for ((appName, _) in liveListApps.entries()) {
+      result.add(appName);
+    };
+    result.toArray();
+  };
+
+  // LIVE LIST CHECKING FUNCTIONS
+  public query ({ caller }) func checkLiveList(usernamesToCheck : [Text]) : async LiveListCheckSummary {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can perform live list checks");
+    };
+
+    var totalMatches = 0;
+    let detailedResults = List.empty<LiveListCheckResult>();
+
+    for ((_, app) in liveListApps.entries()) {
+      var matchCount = 0;
+      let matches = List.empty<Text>();
+
+      for (username in app.usernames.values()) {
+        for (checkUser in usernamesToCheck.values()) {
+          if (username == checkUser) {
+            matches.add(username);
+            matchCount += 1;
+            totalMatches += 1;
+          };
+        };
+      };
+
+      detailedResults.add({
+        appName = app.appName;
+        matches = matches.toArray();
+        matchCount;
+      });
+    };
+
+    {
+      totalMatches;
+      detailedResults = detailedResults.toArray();
+    };
   };
 
   let accessControlState = AccessControl.initState();

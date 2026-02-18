@@ -1,82 +1,35 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T12:05:43.168Z",
-  "summary": "Diff implements the new three-section router layout, Customer View generators, Upload Section, and an Admin Panel with secondary tabs plus related React Query hooks. Backend work adds comment list APIs and a migration module, but evidence suggests some key spec items are incomplete/incorrect: top-level nav always having 3 sections, per-user/device usage tracking, stable persistence across upgrades for new state, and inclusion of the required static background asset file.",
+  "generatedAt": "2026-02-18T13:12:22.604Z",
+  "summary": "Backend adds a device-aware single-comment API with enforcement via a per-(listName, deviceId) tracker and includes a migration initializing new tracking state. Frontend adds localStorage-based deviceId plus per-list usage tracking and disables single generation after first use. However, due to truncation, the required UI behavior on backend rejection (show clear English error and ensure button ends up disabled) cannot be fully verified from the diff summary.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Top-level segmented navigation must show three primary sections (“Customer View”, “Upload Section”, “Admin Panel”).",
-      "reason": "TopSegmentedNav conditionally hides the “Admin Panel” segment when `isAdmin` is false, so the main navigation will not always show all three sections as required by the AC.",
-      "evidence": [
-        "frontend/src/components/TopSegmentedNav.tsx"
-      ]
-    },
-    {
       "id": "REQ-2",
-      "requirement": "Single/Bulk generation must mark comments as used for that specific user/device identity (per-user usage tracking), not globally for everyone.",
-      "reason": "Backend `Comment` has only a global `used : Bool` flag and `generateSingleComment` flips it to true without any per-caller/per-device tracking; caller is unused in the shown logic.",
+      "requirement": "If the backend rejects the request due to the one-per-device-per-list rule (e.g., after clearing local storage or on a second tab), the UI shows a clear English error message and the single-generate button ends up disabled for that list.",
+      "reason": "CustomerViewPage.tsx catch/error-handling logic is truncated right where it appears to check the backend error message (\"if (errorMessage.include...\"), so the diff summary does not confirm the UI reliably detects the backend restriction error, displays the required English message, and disables the button as a result.",
       "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "requirement": "Persist all data across canister upgrades using stable storage patterns (comment lists, used status, uploads, chat, bulk key, and usage tracking).",
-      "reason": "Backend shows `let commentLists = Map.empty<Text, CommentList>();` (non-stable) and comment used status stored in-memory; no stable variables or pre/post-upgrade persistence is evidenced in the shown portion. Also per-user usage tracking is not evidenced.",
-      "evidence": [
-        "backend/main.mo",
-        "backend/migration.mo"
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "requirement": "Create the static pastel geometric/confetti background image under `frontend/public/assets/generated` and reference it from the UI.",
-      "reason": "UI references `/assets/generated/admin-bg.dim_1600x900.png`, but the diff summary does not show the actual image asset being added under `frontend/public/assets/generated`.",
-      "evidence": [
-        "frontend/src/components/SiteLayout.tsx"
+        "frontend/src/pages/CustomerViewPage.tsx (truncated catch block)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/maintained multiple unrelated site pages and novelty UI elements (e.g., teddy mascot, love story pages, music/video/gallery pages, animated hearts/sparkles background, proposal effects) not requested in the BuildRequest.",
-      "reason": "The BuildRequest is specifically about rebuilding the Comment Generator app UI/flows (Customer View / Upload Section / Admin Panel) and does not request these additional website experiences.",
+      "description": "Project metadata/state updated (project_state.json) to reflect this feature request/status.",
+      "reason": "BuildRequest does not request updating project tracking/metadata files; this change is not part of the specified backend/frontend functional requirements.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "project_state.json"
       ]
     }
   ],
-  "confidence": 0.64,
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/SiteFooter.tsx",
-    "frontend/src/components/SiteLayout.tsx",
-    "frontend/src/components/SiteNav.tsx",
-    "frontend/src/components/TopSegmentedNav.tsx",
-    "frontend/src/components/admin/AdminChatTab.tsx",
-    "frontend/src/components/admin/AdminCommentsTab.tsx",
-    "frontend/src/components/admin/AdminImagesTab.tsx",
-    "frontend/src/components/admin/AdminSettingsTab.tsx",
-    "frontend/src/hooks/useAdminComments.ts",
-    "frontend/src/hooks/useBulkGeneratorKey.ts",
-    "frontend/src/hooks/useChatMessages.ts",
     "frontend/src/hooks/useCommentGenerator.ts",
-    "frontend/src/hooks/useLiveListChecker.ts",
-    "frontend/src/hooks/useRatingImages.ts",
-    "frontend/src/index.css",
-    "frontend/src/lib/generation.ts",
-    "frontend/src/pages/AdminLiveListCheckerPage.tsx",
-    "frontend/src/pages/AdminPanelPage.tsx",
-    "frontend/src/pages/BulkCommentGeneratorPage.tsx",
-    "frontend/src/pages/CommentGeneratorHomePage.tsx",
+    "frontend/src/lib/deviceId.ts",
     "frontend/src/pages/CustomerViewPage.tsx",
-    "frontend/src/pages/LiveListCheckerPage.tsx",
-    "frontend/src/pages/SingleCommentGeneratorPage.tsx",
-    "frontend/src/pages/UploadSectionPage.tsx",
     "project_state.json"
   ]
 }

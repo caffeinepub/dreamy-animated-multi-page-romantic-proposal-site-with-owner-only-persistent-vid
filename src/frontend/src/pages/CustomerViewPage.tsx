@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Zap, Copy, Check } from 'lucide-react';
+import { Sparkles, Zap, Copy, Check, Shield, AlertCircle } from 'lucide-react';
 import { useGetAvailableCommentLists, useGenerateSingleComment, useGenerateBulkComments, useGetBulkKeyStatus } from '@/hooks/useCommentGenerator';
+import { useAdminToken } from '@/hooks/useAdminToken';
+import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import Rotating3DObject from '@/components/Rotating3DObject';
+import { getDeviceId, isListUsedForSingleGeneration, markListAsUsedForSingleGeneration } from '@/lib/deviceId';
 
 export default function CustomerViewPage() {
   const [selectedListSingle, setSelectedListSingle] = useState('');
@@ -16,11 +20,52 @@ export default function CustomerViewPage() {
   const [singleComment, setSingleComment] = useState('');
   const [bulkComments, setBulkComments] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [adminCode, setAdminCode] = useState('');
+  const [codeError, setCodeError] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [singleGeneratorDisabled, setSingleGeneratorDisabled] = useState(false);
+  const [singleGeneratorError, setSingleGeneratorError] = useState('');
 
   const { data: commentLists = [], isLoading: listsLoading } = useGetAvailableCommentLists();
   const { data: keyStatus } = useGetBulkKeyStatus();
   const generateSingle = useGenerateSingleComment();
   const generateBulk = useGenerateBulkComments();
+  const { setAdminAccess } = useAdminToken();
+  const navigate = useNavigate();
+
+  // Initialize device ID on mount
+  useEffect(() => {
+    const id = getDeviceId();
+    setDeviceId(id);
+  }, []);
+
+  // Check if selected list is already used when selection changes
+  useEffect(() => {
+    if (selectedListSingle) {
+      const isUsed = isListUsedForSingleGeneration(selectedListSingle);
+      setSingleGeneratorDisabled(isUsed);
+      if (isUsed) {
+        setSingleGeneratorError('You have already generated a comment from this list on this device.');
+      } else {
+        setSingleGeneratorError('');
+      }
+    } else {
+      setSingleGeneratorDisabled(false);
+      setSingleGeneratorError('');
+    }
+  }, [selectedListSingle]);
+
+  const handleAdminAccess = () => {
+    if (adminCode === '7898') {
+      setAdminAccess();
+      setCodeError('');
+      toast.success('Admin access granted!');
+      navigate({ to: '/admin' });
+    } else {
+      setCodeError('Invalid access code. Please try again.');
+      toast.error('Invalid access code');
+    }
+  };
 
   const handleGenerateSingle = async () => {
     if (!selectedListSingle) {
@@ -28,12 +73,35 @@ export default function CustomerViewPage() {
       return;
     }
 
+    if (singleGeneratorDisabled) {
+      toast.error('You have already generated a comment from this list on this device.');
+      return;
+    }
+
     try {
-      const comment = await generateSingle.mutateAsync(selectedListSingle);
+      const comment = await generateSingle.mutateAsync({
+        listName: selectedListSingle,
+        deviceId,
+      });
       setSingleComment(comment);
+      
+      // Mark list as used locally
+      markListAsUsedForSingleGeneration(selectedListSingle);
+      setSingleGeneratorDisabled(true);
+      setSingleGeneratorError('You have already generated a comment from this list on this device.');
+      
       toast.success('Comment generated successfully!');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to generate comment');
+      const errorMessage = error.message || 'Failed to generate comment';
+      
+      // If backend rejects due to device restriction, disable the button
+      if (errorMessage.includes('device') || errorMessage.includes('one comment per list')) {
+        markListAsUsedForSingleGeneration(selectedListSingle);
+        setSingleGeneratorDisabled(true);
+        setSingleGeneratorError('You have already generated a comment from this list on this device.');
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
@@ -78,6 +146,52 @@ export default function CustomerViewPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Admin Access Control - Top Left */}
+      <div className="mb-6">
+        <Card className="card-pastel border-blue-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 flex-wrap">
+              <Shield className="w-5 h-5 text-blue-600" />
+              <Label htmlFor="admin-code" className="text-sm font-medium">Admin Access Code:</Label>
+              <Input
+                id="admin-code"
+                type="password"
+                value={adminCode}
+                onChange={(e) => {
+                  setAdminCode(e.target.value);
+                  setCodeError('');
+                }}
+                placeholder="Enter code..."
+                className="w-32"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAdminAccess();
+                  }
+                }}
+              />
+              <Button
+                onClick={handleAdminAccess}
+                size="sm"
+                className="btn-gradient"
+              >
+                Access Admin
+              </Button>
+              {codeError && (
+                <div className="flex items-center gap-2 text-red-600 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{codeError}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 3D Decorative Object */}
+      <div className="flex justify-center mb-8">
+        <Rotating3DObject />
+      </div>
+
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-3">Customer View</h1>
         <p className="text-gray-600 text-lg">Generate comments, upload images, and view your activity</p>
@@ -114,9 +228,16 @@ export default function CustomerViewPage() {
               </Select>
             </div>
 
+            {singleGeneratorError && (
+              <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{singleGeneratorError}</span>
+              </div>
+            )}
+
             <Button
               onClick={handleGenerateSingle}
-              disabled={!selectedListSingle || generateSingle.isPending}
+              disabled={!selectedListSingle || generateSingle.isPending || singleGeneratorDisabled}
               className="w-full btn-gradient"
             >
               <Sparkles className="w-4 h-4 mr-2" />

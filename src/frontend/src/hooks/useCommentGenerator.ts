@@ -19,9 +19,9 @@ export function useGenerateSingleComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (listName: string) => {
+    mutationFn: async ({ listName, deviceId }: { listName: string; deviceId: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.generateSingleComment(listName);
+      return actor.generateSingleComment(listName, deviceId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['commentLists'] });

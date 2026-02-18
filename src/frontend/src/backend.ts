@@ -89,32 +89,26 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface CommentListSummary {
-    name: string;
-    usedComments: bigint;
-    totalComments: bigint;
-}
 export interface BulkCommentResult {
     usedCount: bigint;
     availableCount: bigint;
     comments: Array<string>;
 }
-export interface RatingImage {
-    imageBlob: ExternalBlob;
-    uploaderName: string;
-    uploadTime: bigint;
-}
 export interface Comment {
     text: string;
     used: boolean;
 }
+export interface LiveListCheckSummary {
+    totalMatches: bigint;
+    detailedResults: Array<LiveListCheckResult>;
+}
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
 }
-export interface ChatMessage {
-    sender: string;
-    message: string;
-    timestamp: bigint;
+export interface LiveListCheckResult {
+    appName: string;
+    matchCount: bigint;
+    matches: Array<string>;
 }
 export interface BulkCommentTotals {
     totalLists: bigint;
@@ -125,6 +119,21 @@ export interface BulkCommentTotals {
 export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
+}
+export interface CommentListSummary {
+    name: string;
+    usedComments: bigint;
+    totalComments: bigint;
+}
+export interface RatingImage {
+    imageBlob: ExternalBlob;
+    uploaderName: string;
+    uploadTime: bigint;
+}
+export interface ChatMessage {
+    sender: string;
+    message: string;
+    timestamp: bigint;
 }
 export interface UserProfile {
     name: string;
@@ -147,18 +156,23 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     addChatMessage(sender: string, message: string): Promise<void>;
+    addLiveListApp(appName: string): Promise<void>;
     addSingleComment(listName: string, comment: string): Promise<void>;
+    addUsernamesToApp(appName: string, newUsernames: Array<string>): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     bulkUploadComments(listName: string, comments: Array<string>): Promise<void>;
+    checkLiveList(usernamesToCheck: Array<string>): Promise<LiveListCheckSummary>;
     createCommentList(name: string): Promise<void>;
     deleteComment(listName: string, comment: string): Promise<void>;
     deleteList(listName: string): Promise<void>;
+    deleteLiveListApp(appName: string): Promise<void>;
     deleteRatingImage(index: bigint): Promise<void>;
     generateBulkComments(listName: string, count: bigint, accessKey: string): Promise<BulkCommentResult>;
-    generateSingleComment(listName: string): Promise<string>;
+    generateSingleComment(listName: string, deviceId: string): Promise<string>;
     getAllChatMessages(): Promise<Array<ChatMessage>>;
     getAllRatingImages(): Promise<Array<RatingImage>>;
     getAvailableCommentLists(): Promise<Array<string>>;
+    getAvailableLiveListApps(): Promise<Array<string>>;
     getBulkCommentTotals(): Promise<BulkCommentTotals>;
     getBulkGeneratorKeyMasked(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -168,8 +182,10 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     hasBulkGeneratorKey(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    resetAllLiveListApps(): Promise<void>;
     resetBulkGeneratorKey(): Promise<void>;
     resetList(listName: string): Promise<void>;
+    resetUsernamesForApp(appName: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setBulkGeneratorKey(newKey: string): Promise<void>;
     uploadRatingImage(uploaderName: string, image: ExternalBlob): Promise<void>;
@@ -289,6 +305,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addLiveListApp(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addLiveListApp(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addLiveListApp(arg0);
+            return result;
+        }
+    }
     async addSingleComment(arg0: string, arg1: string): Promise<void> {
         if (this.processError) {
             try {
@@ -300,6 +330,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addSingleComment(arg0, arg1);
+            return result;
+        }
+    }
+    async addUsernamesToApp(arg0: string, arg1: Array<string>): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addUsernamesToApp(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addUsernamesToApp(arg0, arg1);
             return result;
         }
     }
@@ -328,6 +372,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.bulkUploadComments(arg0, arg1);
+            return result;
+        }
+    }
+    async checkLiveList(arg0: Array<string>): Promise<LiveListCheckSummary> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.checkLiveList(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.checkLiveList(arg0);
             return result;
         }
     }
@@ -373,6 +431,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteLiveListApp(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteLiveListApp(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteLiveListApp(arg0);
+            return result;
+        }
+    }
     async deleteRatingImage(arg0: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -401,17 +473,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async generateSingleComment(arg0: string): Promise<string> {
+    async generateSingleComment(arg0: string, arg1: string): Promise<string> {
         if (this.processError) {
             try {
-                const result = await this.actor.generateSingleComment(arg0);
+                const result = await this.actor.generateSingleComment(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.generateSingleComment(arg0);
+            const result = await this.actor.generateSingleComment(arg0, arg1);
             return result;
         }
     }
@@ -454,6 +526,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getAvailableCommentLists();
+            return result;
+        }
+    }
+    async getAvailableLiveListApps(): Promise<Array<string>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAvailableLiveListApps();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAvailableLiveListApps();
             return result;
         }
     }
@@ -583,6 +669,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async resetAllLiveListApps(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.resetAllLiveListApps();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.resetAllLiveListApps();
+            return result;
+        }
+    }
     async resetBulkGeneratorKey(): Promise<void> {
         if (this.processError) {
             try {
@@ -608,6 +708,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.resetList(arg0);
+            return result;
+        }
+    }
+    async resetUsernamesForApp(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.resetUsernamesForApp(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.resetUsernamesForApp(arg0);
             return result;
         }
     }

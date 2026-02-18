@@ -14,35 +14,44 @@ export class ExternalBlob {
     static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
     withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
 }
-export interface CommentListSummary {
-    name: string;
-    usedComments: bigint;
-    totalComments: bigint;
-}
 export interface BulkCommentResult {
     usedCount: bigint;
     availableCount: bigint;
     comments: Array<string>;
 }
-export interface RatingImage {
-    imageBlob: ExternalBlob;
-    uploaderName: string;
-    uploadTime: bigint;
-}
 export interface Comment {
     text: string;
     used: boolean;
 }
-export interface ChatMessage {
-    sender: string;
-    message: string;
-    timestamp: bigint;
+export interface LiveListCheckSummary {
+    totalMatches: bigint;
+    detailedResults: Array<LiveListCheckResult>;
+}
+export interface LiveListCheckResult {
+    appName: string;
+    matchCount: bigint;
+    matches: Array<string>;
 }
 export interface BulkCommentTotals {
     totalLists: bigint;
     unusedComments: bigint;
     usedComments: bigint;
     totalComments: bigint;
+}
+export interface CommentListSummary {
+    name: string;
+    usedComments: bigint;
+    totalComments: bigint;
+}
+export interface RatingImage {
+    imageBlob: ExternalBlob;
+    uploaderName: string;
+    uploadTime: bigint;
+}
+export interface ChatMessage {
+    sender: string;
+    message: string;
+    timestamp: bigint;
 }
 export interface UserProfile {
     name: string;
@@ -54,18 +63,23 @@ export enum UserRole {
 }
 export interface backendInterface {
     addChatMessage(sender: string, message: string): Promise<void>;
+    addLiveListApp(appName: string): Promise<void>;
     addSingleComment(listName: string, comment: string): Promise<void>;
+    addUsernamesToApp(appName: string, newUsernames: Array<string>): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     bulkUploadComments(listName: string, comments: Array<string>): Promise<void>;
+    checkLiveList(usernamesToCheck: Array<string>): Promise<LiveListCheckSummary>;
     createCommentList(name: string): Promise<void>;
     deleteComment(listName: string, comment: string): Promise<void>;
     deleteList(listName: string): Promise<void>;
+    deleteLiveListApp(appName: string): Promise<void>;
     deleteRatingImage(index: bigint): Promise<void>;
     generateBulkComments(listName: string, count: bigint, accessKey: string): Promise<BulkCommentResult>;
-    generateSingleComment(listName: string): Promise<string>;
+    generateSingleComment(listName: string, deviceId: string): Promise<string>;
     getAllChatMessages(): Promise<Array<ChatMessage>>;
     getAllRatingImages(): Promise<Array<RatingImage>>;
     getAvailableCommentLists(): Promise<Array<string>>;
+    getAvailableLiveListApps(): Promise<Array<string>>;
     getBulkCommentTotals(): Promise<BulkCommentTotals>;
     getBulkGeneratorKeyMasked(): Promise<string | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -75,8 +89,10 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     hasBulkGeneratorKey(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    resetAllLiveListApps(): Promise<void>;
     resetBulkGeneratorKey(): Promise<void>;
     resetList(listName: string): Promise<void>;
+    resetUsernamesForApp(appName: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setBulkGeneratorKey(newKey: string): Promise<void>;
     uploadRatingImage(uploaderName: string, image: ExternalBlob): Promise<void>;

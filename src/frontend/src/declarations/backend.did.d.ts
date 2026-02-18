@@ -33,6 +33,15 @@ export interface CommentListSummary {
   'totalComments' : bigint,
 }
 export type ExternalBlob = Uint8Array;
+export interface LiveListCheckResult {
+  'appName' : string,
+  'matchCount' : bigint,
+  'matches' : Array<string>,
+}
+export interface LiveListCheckSummary {
+  'totalMatches' : bigint,
+  'detailedResults' : Array<LiveListCheckResult>,
+}
 export interface RatingImage {
   'imageBlob' : ExternalBlob,
   'uploaderName' : string,
@@ -71,21 +80,26 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addChatMessage' : ActorMethod<[string, string], undefined>,
+  'addLiveListApp' : ActorMethod<[string], undefined>,
   'addSingleComment' : ActorMethod<[string, string], undefined>,
+  'addUsernamesToApp' : ActorMethod<[string, Array<string>], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'bulkUploadComments' : ActorMethod<[string, Array<string>], undefined>,
+  'checkLiveList' : ActorMethod<[Array<string>], LiveListCheckSummary>,
   'createCommentList' : ActorMethod<[string], undefined>,
   'deleteComment' : ActorMethod<[string, string], undefined>,
   'deleteList' : ActorMethod<[string], undefined>,
+  'deleteLiveListApp' : ActorMethod<[string], undefined>,
   'deleteRatingImage' : ActorMethod<[bigint], undefined>,
   'generateBulkComments' : ActorMethod<
     [string, bigint, string],
     BulkCommentResult
   >,
-  'generateSingleComment' : ActorMethod<[string], string>,
+  'generateSingleComment' : ActorMethod<[string, string], string>,
   'getAllChatMessages' : ActorMethod<[], Array<ChatMessage>>,
   'getAllRatingImages' : ActorMethod<[], Array<RatingImage>>,
   'getAvailableCommentLists' : ActorMethod<[], Array<string>>,
+  'getAvailableLiveListApps' : ActorMethod<[], Array<string>>,
   'getBulkCommentTotals' : ActorMethod<[], BulkCommentTotals>,
   'getBulkGeneratorKeyMasked' : ActorMethod<[], [] | [string]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -95,8 +109,10 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'hasBulkGeneratorKey' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'resetAllLiveListApps' : ActorMethod<[], undefined>,
   'resetBulkGeneratorKey' : ActorMethod<[], undefined>,
   'resetList' : ActorMethod<[string], undefined>,
+  'resetUsernamesForApp' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setBulkGeneratorKey' : ActorMethod<[string], undefined>,
   'uploadRatingImage' : ActorMethod<[string, ExternalBlob], undefined>,

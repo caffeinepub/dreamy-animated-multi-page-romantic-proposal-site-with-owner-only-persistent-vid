@@ -5,6 +5,7 @@ import SiteLayout from './components/SiteLayout';
 import CustomerViewPage from './pages/CustomerViewPage';
 import UploadSectionPage from './pages/UploadSectionPage';
 import AdminPanelPage from './pages/AdminPanelPage';
+import LiveListCheckerPage from './pages/LiveListCheckerPage';
 import AdminTokenGate from './components/AdminTokenGate';
 
 const queryClient = new QueryClient({
@@ -32,6 +33,12 @@ const uploadSectionRoute = createRoute({
   component: UploadSectionPage,
 });
 
+const liveListRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/live-list',
+  component: LiveListCheckerPage,
+});
+
 const adminPanelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
@@ -45,6 +52,7 @@ const adminPanelRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   customerViewRoute,
   uploadSectionRoute,
+  liveListRoute,
   adminPanelRoute,
 ]);
 

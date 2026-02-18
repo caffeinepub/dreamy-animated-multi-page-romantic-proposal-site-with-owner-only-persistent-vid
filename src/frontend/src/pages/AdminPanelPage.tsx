@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, MessageSquare, Image, MessageCircle, Settings } from 'lucide-react';
+import { Shield, MessageSquare, Image, MessageCircle, Settings, ListChecks } from 'lucide-react';
 import AdminCommentsTab from '@/components/admin/AdminCommentsTab';
 import AdminImagesTab from '@/components/admin/AdminImagesTab';
 import AdminChatTab from '@/components/admin/AdminChatTab';
 import AdminSettingsTab from '@/components/admin/AdminSettingsTab';
+import AdminLiveListTab from '@/components/admin/AdminLiveListTab';
 
-type AdminTab = 'comments' | 'images' | 'chat' | 'settings';
+type AdminTab = 'comments' | 'images' | 'chat' | 'settings' | 'livelist';
 
 export default function AdminPanelPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>('comments');
@@ -15,6 +16,7 @@ export default function AdminPanelPage() {
     { id: 'comments' as AdminTab, label: 'Comments', icon: MessageSquare },
     { id: 'images' as AdminTab, label: 'Images', icon: Image },
     { id: 'chat' as AdminTab, label: 'Chat', icon: MessageCircle },
+    { id: 'livelist' as AdminTab, label: 'Live List', icon: ListChecks },
     { id: 'settings' as AdminTab, label: 'Settings', icon: Settings },
   ];
 
@@ -27,7 +29,7 @@ export default function AdminPanelPage() {
           </div>
           <div>
             <h1 className="text-4xl font-bold text-gray-900">Admin Panel</h1>
-            <p className="text-gray-600 text-lg">Manage comments, images, chat, and settings</p>
+            <p className="text-gray-600 text-lg">Manage comments, images, chat, live lists, and settings</p>
           </div>
         </div>
       </div>
@@ -63,6 +65,7 @@ export default function AdminPanelPage() {
         {activeTab === 'comments' && <AdminCommentsTab />}
         {activeTab === 'images' && <AdminImagesTab />}
         {activeTab === 'chat' && <AdminChatTab />}
+        {activeTab === 'livelist' && <AdminLiveListTab />}
         {activeTab === 'settings' && <AdminSettingsTab />}
       </div>
     </div>
