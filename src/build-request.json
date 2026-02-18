@@ -1,96 +1,31 @@
 {
   "kind": "build_request",
-  "title": "Enforce one single comment per list per device (comment generator only)",
-  "projectName": "APP REVIEW",
+  "title": "Deploy Version 7 to production",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add backend enforcement so that, for the single-comment generator flow only, the same device can generate at most one comment per comment list; subsequent attempts for the same (device, listName) must fail with a clear error.",
-      "target": "backend",
+      "text": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-6"
+          "msg-last"
         ],
         "quotes": [
-          "Only one comment per list per device",
-          "only in the comment generator feature",
-          "all the users",
-          "the button not work or error message anything you like"
+          "Now public or make it live"
         ]
       },
       "acceptanceCriteria": [
-        "A new/updated backend API is available for the frontend to request a single comment while providing a device identifier.",
-        "When a device requests a single comment for a listName the first time, the backend returns a comment successfully (assuming the list has unused comments).",
-        "When the same device requests another single comment for the same listName, the backend rejects the request with an error message indicating the one-per-device-per-list restriction.",
-        "Requests for different listNames from the same device are still allowed (subject to list availability).",
-        "Bulk comment generation behavior is unchanged."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Update the Customer View single comment generator UI to implement 'one comment per list per device' by generating/persisting a device identifier in browser local storage, using it when calling the backend single-comment API, and disabling the single-generate button (or showing an English error) when the device has already generated a single comment for the selected list.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4",
-          "msg-6"
-        ],
-        "quotes": [
-          "Only one comment per list per device",
-          "only in the comment generator feature",
-          "the button not work or error message anything you like"
-        ]
-      },
-      "acceptanceCriteria": [
-        "On first successful generation for a selected list, the UI stores that the current device has used that list for single generation and prevents further single generations for that list on the same browser/device.",
-        "If the backend rejects the request due to the one-per-device-per-list rule (e.g., after clearing local storage or on a second tab), the UI shows a clear English error message and the single-generate button ends up disabled for that list.",
-        "The disable/error behavior applies to all users (no admin/user exceptions).",
-        "Bulk comment generation UI/behavior remains unchanged."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "If the backend uses stable persisted state for comment generator data, add/extend the migration to initialize any new persisted structure needed to track per-(device, listName) single-generation usage without breaking existing deployments.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Build it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Existing deployed state (comment lists, bulk key, etc.) continues to load after upgrade.",
-        "New usage-tracking state (if persisted) is initialized to an empty value on upgrade."
+        "Version 7 is successfully deployed to production",
+        "All button clicks and data loading functions work correctly in the live production environment",
+        "The production deployment matches the working draft version"
       ]
     }
   ],
-  "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not modify files under frontend/src/components/ui or any frontend immutablePaths listed in SYSTEM_CONTEXT.",
-    "Implement the one-comment-per-list-per-device restriction only for the single comment generator flow (do not apply it to bulk generation, admin tools, live list checking, image upload, or chat).",
-    "All user-facing text introduced or modified for this change must be in English."
-  ],
-  "nonGoals": [
-    "Do not implement cross-browser or cross-device fingerprinting beyond a locally-stored device identifier.",
-    "Do not add third-party authentication or external databases/services to support device tracking.",
-    "Do not change the admin access code flow or other unrelated UI sections."
-  ],
+  "constraints": [],
+  "nonGoals": [],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

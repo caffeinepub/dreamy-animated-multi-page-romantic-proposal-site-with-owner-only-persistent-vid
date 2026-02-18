@@ -11,10 +11,9 @@ import Storage "blob-storage/Storage";
 import Array "mo:core/Array";
 
 import Nat "mo:core/Nat";
-import Migration "migration";
 
 // DATA MIGRATION: Specify data transformation function from <migration.mo> in with clause.
-(with migration = Migration.run)
+
 actor {
   // COMMENT LIST MANAGEMENT
   type Comment = {
@@ -50,7 +49,7 @@ actor {
   let singleUseTracker = Map.empty<Text, ()>();
 
   // CUSTOMER VIEW
-  public query ({ caller }) func getAvailableCommentLists() : async [Text] {
+  public query func getAvailableCommentLists() : async [Text] {
     var result = List.empty<Text>();
     for ((name, _list) in commentLists.entries()) {
       result.add(name);
@@ -77,7 +76,7 @@ actor {
     };
   };
 
-  public shared ({ caller }) func generateSingleComment(listName : Text, deviceId : Text) : async Text {
+  public shared func generateSingleComment(listName : Text, deviceId : Text) : async Text {
     let trackerKey = listName # "_" # deviceId;
 
     // Check if this device has already used the list
@@ -97,7 +96,7 @@ actor {
               func(c) {
                 if (c.text == comment.text and not c.used) { updatedComment } else {
                   c;
-                };
+                }
               }
             );
             let updatedList = { list with comments = updatedComments };
@@ -165,7 +164,11 @@ actor {
     };
   };
 
-  public query func getBulkCommentTotals() : async BulkCommentTotals {
+  public query ({ caller }) func getBulkCommentTotals() : async BulkCommentTotals {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can view bulk comment totals");
+    };
+
     var totalLists = 0;
     var totalComments = 0;
     var usedComments = 0;
@@ -390,7 +393,7 @@ actor {
 
   let ratingImages = List.empty<RatingImage>();
 
-  public shared ({ caller }) func uploadRatingImage(
+  public shared func uploadRatingImage(
     uploaderName : Text,
     image : Storage.ExternalBlob,
   ) : async () {

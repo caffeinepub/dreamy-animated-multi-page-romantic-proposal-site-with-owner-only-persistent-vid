@@ -1,27 +1,4 @@
 {
   "kind": "feature_evidence_report",
-  "features": [
-    {
-      "featureId": "feature-update-the-customer-view-single-comment-generator-ui-to-implement-one-comment-per-list-per-device-by-generating-persisting-a-device-identifier-in-browser-local-storage-using-it-when-calling-the-backend-single-comment-api-and-disabling-the-single-generate-button-or-showing-an-english-error-when-the-device-has-already-generated-a-single-comment-for-the-selected-list",
-      "featureTitle": "Update the Customer View single comment generator UI to implement 'one comment per list per device' by generating/persisting a device identifier in browser local storage, using it when calling the backend single-comment API, and disabling the single-generate button (or showing an English error) when the device has already generated a single comment for the selected list.",
-      "files": [
-        "frontend/src/hooks/useCommentGenerator.ts",
-        "frontend/src/lib/deviceId.ts",
-        "frontend/src/pages/CustomerViewPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    }
-  ]
+  "features": []
 }

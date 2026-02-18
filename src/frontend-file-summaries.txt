@@ -46,5 +46,6 @@
   "frontend/index.html": "HTML entry point with updated title \"APP REVIEW\" for browser tab display.",
   "frontend/src/components/Rotating3DObject.tsx": "CSS-based 3D rotating cube component with six colorful faces using OKLCH gradients and continuous rotation animation.",
   "frontend/src/components/admin/AdminLiveListTab.tsx": "Admin Live List management tab with create app, add usernames, individual delete/reset per app, and full reset all functionality with confirmation dialogs.",
-  "frontend/src/lib/deviceId.ts": "Device ID and single-generation tracking utilities using localStorage to persist device identifier and track which lists have been used for single comment generation."
+  "frontend/src/lib/deviceId.ts": "Device ID and single-generation tracking utilities using localStorage to persist device identifier and track which lists have been used for single comment generation.",
+  "frontend/src/main.tsx": "Application entry point with React Query, Internet Identity, and Theme providers configured with Toaster component for toast notifications."
 }

@@ -1,47 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project includes a Live List Checking app with a comment generator, adding a rule to allow only one comment per list per device for all users.",
-  "architectural_notes": [
-    "Need a per-device identifier and storage to enforce 'one comment per list per device' across all users (e.g., deviceId + listId uniqueness)."
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [
+    "Production deployment had issue where buttons and data loading did not work (draft worked fine). Resolved by redeploying draft to production."
   ],
-  "known_issues": [],
   "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-update-the-customer-view-single-comment-generator-ui-to-implement-one-comment-per-list-per-device-by-generating-persisting-a-device-identifier-in-browser-local-storage-using-it-when-calling-the-backend-single-comment-api-and-disabling-the-single-generate-button-or-showing-an-english-error-when-the-device-has-already-generated-a-single-comment-for-the-selected-list",
-      "title": "Update the Customer View single comment generator UI to implement 'one comment per list per device' by generating/persisting a device identifier in browser local storage, using it when calling the backend single-comment API, and disabling the single-generate button (or showing an English error) when the device has already generated a single comment for the selected list.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    }
-  ],
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Enforce one comment per list per device (comment generator only), for all users; on repeat attempts disable button or show an error",
-      "reqIds": [],
-      "status": "in_progress"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add backend enforcement so that, for the single-comment generator flow only, the same device can generate at most one comment per comment list; subsequent attempts for the same (device, listName) must fail with a clear error.",
+      "summary": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "If the backend uses stable persisted state for comment generator data, add/extend the migration to initialize any new persisted structure needed to track per-(device, listName) single-generation usage without breaking existing deployments.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
     }
   ],
-  "projectName": "APP REVIEW",
+  "projectName": "Deploy Version 7 to production",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

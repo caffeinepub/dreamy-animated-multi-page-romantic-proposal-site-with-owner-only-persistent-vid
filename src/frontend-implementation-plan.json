@@ -1,32 +1,121 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Single-comment per device-per-list UX enforcement (Customer View)",
+  "title": "Deploy Version 7 to Production",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Persist a browser device identifier and enforce one single-comment generation per list per device in the Customer View UI, including disable state and clear English errors, without changing bulk generation behavior.",
+      "id": "REQ-1",
+      "summary": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
       "acceptanceCriteria": [
-        "On first successful generation for a selected list, the UI stores that the current device has used that list for single generation and prevents further single generations for that list on the same browser/device.",
-        "If the backend rejects the request due to the one-per-device-per-list rule (e.g., after clearing local storage or on a second tab), the UI shows a clear English error message and the single-generate button ends up disabled for that list.",
-        "The disable/error behavior applies to all users (no admin/user exceptions).",
-        "Bulk comment generation UI/behavior remains unchanged."
+        "Version 7 is successfully deployed to production",
+        "All button clicks and data loading functions work correctly in the live production environment",
+        "The production deployment matches the working draft version"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/deviceId.ts",
-          "operation": "create",
-          "description": "Add small localStorage utilities to (1) generate and persist a stable per-browser deviceId and (2) persist/query per-list single-generation usage state (e.g., used listNames set) for the single comment generator flow only."
-        },
-        {
-          "path": "frontend/src/hooks/useCommentGenerator.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update the single comment generation hook to require a deviceId and pass it to the backend generateSingleComment call; keep bulk generation hooks unchanged."
+          "description": "Verify all route configurations are production-ready and remove any draft-specific debugging code or console logs that should not appear in production"
         },
         {
           "path": "frontend/src/pages/CustomerViewPage.tsx",
           "operation": "modify",
-          "description": "Implement the Customer View single generator restriction: load/ensure deviceId, detect if the selected single list is already used for this device, disable the single-generate button accordingly, persist used-on-success, and on backend rejection show an English error then disable for that list; ensure bulk generator UI/logic is unchanged and do not modify any files under frontend/src/components/ui."
+          "description": "Review and ensure all comment generation functionality, device-based restrictions, and list selection features work correctly; remove any temporary debugging statements"
+        },
+        {
+          "path": "frontend/src/pages/LiveListCheckerPage.tsx",
+          "operation": "modify",
+          "description": "Verify username checking, localStorage persistence, and export functionality are production-ready; ensure no draft-only features remain"
+        },
+        {
+          "path": "frontend/src/pages/UploadSectionPage.tsx",
+          "operation": "modify",
+          "description": "Confirm image upload with progress tracking works correctly; verify ExternalBlob usage follows component guidelines and remove any development-only code"
+        },
+        {
+          "path": "frontend/src/pages/AdminPanelPage.tsx",
+          "operation": "modify",
+          "description": "Ensure all admin tabs (comments, images, chat, live lists, settings) are fully functional and properly secured with authorization checks"
+        },
+        {
+          "path": "frontend/src/components/TopSegmentedNav.tsx",
+          "operation": "modify",
+          "description": "Verify navigation links work correctly across all routes and admin access is properly gated"
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Ensure actor initialization and admin access token handling are production-ready; verify proper error handling for backend connection failures"
+        },
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Confirm Internet Identity authentication flow works correctly in production environment; ensure proper cleanup on logout"
+        },
+        {
+          "path": "frontend/src/hooks/useAdminComments.ts",
+          "operation": "modify",
+          "description": "Verify all comment management hooks (create, update, delete, bulk operations) handle errors gracefully and display appropriate user feedback"
+        },
+        {
+          "path": "frontend/src/hooks/useCommentGenerator.ts",
+          "operation": "modify",
+          "description": "Ensure single and bulk comment generation hooks work correctly with proper error handling and loading states"
+        },
+        {
+          "path": "frontend/src/hooks/useLiveListChecker.ts",
+          "operation": "modify",
+          "description": "Verify live list checking functionality and app/username management work correctly in production"
+        },
+        {
+          "path": "frontend/src/hooks/useRatingImages.ts",
+          "operation": "modify",
+          "description": "Confirm image upload, listing, and deletion hooks work correctly; verify ExternalBlob component usage follows guidelines"
+        },
+        {
+          "path": "frontend/src/hooks/useChatMessages.ts",
+          "operation": "modify",
+          "description": "Ensure chat message fetching and sending work correctly with proper error handling"
+        },
+        {
+          "path": "frontend/src/hooks/useBulkGeneratorKey.ts",
+          "operation": "modify",
+          "description": "Verify bulk generator key management hooks work securely in production"
+        },
+        {
+          "path": "frontend/src/components/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Ensure layout renders correctly with background image (frontend/public/assets/generated/dreamy-bg.dim_1920x1080.png), navigation, and footer; verify responsive behavior"
+        },
+        {
+          "path": "frontend/src/components/AdminTokenGate.tsx",
+          "operation": "modify",
+          "description": "Verify authorization wrapper properly shows loading states and access denied messages; ensure admin-only content is properly protected"
+        },
+        {
+          "path": "frontend/src/lib/deviceId.ts",
+          "operation": "modify",
+          "description": "Confirm device ID generation and single-use tracking work correctly across browser sessions"
+        },
+        {
+          "path": "frontend/src/utils/urlParams.ts",
+          "operation": "modify",
+          "description": "Verify URL parameter utilities work correctly with sessionStorage in production environment"
+        },
+        {
+          "path": "frontend/index.css",
+          "operation": "modify",
+          "description": "Review global styles, theme variables, and dark mode setup; ensure production-ready styling with no draft-specific overrides"
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Verify Tailwind configuration is optimized for production build with proper purging of unused styles"
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Ensure React Query and Internet Identity provider setup is production-ready with appropriate error boundaries and retry logic"
         }
       ]
     }

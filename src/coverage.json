@@ -1,60 +1,53 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T13:12:22.608Z",
+  "generatedAt": "2026-02-18T15:10:59.194Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 1,
+    "total": 1,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add backend enforcement so that, for the single-comment generator flow only, the same device can generate at most one comment per comment list; subsequent attempts for the same (device, listName) must fail with a clear error.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Update the Customer View single comment generator UI to implement 'one comment per list per device' by generating/persisting a device identifier in browser local storage, using it when calling the backend single-comment API, and disabling the single-generate button (or showing an English error) when the device has already generated a single comment for the selected list.",
-        "status": "implemented",
+        "summary": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/lib/deviceId.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/pages/CustomerViewPage.tsx",
+          "frontend/src/pages/LiveListCheckerPage.tsx",
+          "frontend/src/pages/UploadSectionPage.tsx",
+          "frontend/src/pages/AdminPanelPage.tsx",
+          "frontend/src/components/TopSegmentedNav.tsx",
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/hooks/useInternetIdentity.ts",
+          "frontend/src/hooks/useAdminComments.ts",
           "frontend/src/hooks/useCommentGenerator.ts",
-          "frontend/src/pages/CustomerViewPage.tsx"
+          "frontend/src/hooks/useLiveListChecker.ts",
+          "frontend/src/hooks/useRatingImages.ts",
+          "frontend/src/hooks/useChatMessages.ts",
+          "frontend/src/hooks/useBulkGeneratorKey.ts",
+          "frontend/src/components/SiteLayout.tsx",
+          "frontend/src/components/AdminTokenGate.tsx",
+          "frontend/src/lib/deviceId.ts",
+          "frontend/src/utils/urlParams.ts",
+          "frontend/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/main.tsx"
         ],
-        "matchedFiles": [
-          "frontend/src/lib/deviceId.ts",
-          "frontend/src/hooks/useCommentGenerator.ts",
-          "frontend/src/pages/CustomerViewPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "If the backend uses stable persisted state for comment generator data, add/extend the migration to initialize any new persisted structure needed to track per-(device, listName) single-generation usage without breaking existing deployments.",
-        "status": "unknown",
-        "plannedFiles": [],
         "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useCommentGenerator.ts",
-    "frontend/src/lib/deviceId.ts",
-    "frontend/src/pages/CustomerViewPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
