@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Plus, List, Lock, Trash2, RotateCcw, Database } from 'lucide-react';
+import { Plus, List, Lock, Trash2, RotateCcw, Database, Loader2 } from 'lucide-react';
 import {
   useGetAvailableCommentLists,
   useCreateCommentList,
@@ -26,7 +26,7 @@ export default function AdminCommentsTab() {
   const [bulkComments, setBulkComments] = useState('');
   const [singleComment, setSingleComment] = useState('');
 
-  const { data: commentLists = [] } = useGetAvailableCommentLists();
+  const { data: commentLists = [], isLoading: listsLoading } = useGetAvailableCommentLists();
   const { data: selectedListComments = [] } = useGetCommentList(selectedList);
   const { data: totals } = useGetBulkCommentTotals();
   const createList = useCreateCommentList();
@@ -36,7 +36,7 @@ export default function AdminCommentsTab() {
   const resetList = useResetList();
   const deleteList = useDeleteList();
 
-  const handleCreateList = useCallback(async (e?: React.MouseEvent) => {
+  const handleCreateList = useCallback(async (e?: React.MouseEvent | React.FormEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -50,9 +50,11 @@ export default function AdminCommentsTab() {
     }
 
     try {
+      console.log('[AdminCommentsTab] Calling createList mutation...');
       await createList.mutateAsync(newListName.trim());
+      console.log('[AdminCommentsTab] List created successfully');
       setNewListName('');
-      toast.success('List created successfully!');
+      toast.success(`List "${newListName.trim()}" created successfully!`);
     } catch (error: any) {
       console.error('[AdminCommentsTab] Error creating list:', error);
       toast.error(error.message || 'Failed to create list');
@@ -223,41 +225,58 @@ export default function AdminCommentsTab() {
       )}
 
       {/* Create New List */}
-      <Card className="card-pastel">
-        <CardHeader>
+      <Card className="card-pastel border-2 border-blue-300 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50">
           <div className="flex items-center gap-3">
-            <Plus className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center">
+              <Plus className="w-6 h-6 text-white" />
+            </div>
             <div>
-              <CardTitle>Create New Comment List</CardTitle>
+              <CardTitle className="text-xl">Create New Comment List</CardTitle>
               <CardDescription>Add a new list to organize comments</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           <div>
-            <Label htmlFor="new-list-name">List Name</Label>
+            <Label htmlFor="new-list-name" className="text-base font-semibold">List Name</Label>
             <Input
               id="new-list-name"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
-              placeholder="Enter list name..."
-              className="mt-1.5"
+              placeholder="Enter list name (e.g., App7)..."
+              className="mt-2 text-base h-12 border-2 focus:border-blue-500"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleCreateList();
+                  handleCreateList(e);
                 }
               }}
+              disabled={createList.isPending}
             />
           </div>
           <Button
             onClick={(e) => handleCreateList(e)}
-            disabled={createList.isPending}
-            className="w-full btn-gradient"
+            disabled={createList.isPending || !newListName.trim()}
+            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 shadow-md hover:shadow-lg transition-all"
             type="button"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            {createList.isPending ? 'Creating...' : 'Create List'}
+            {createList.isPending ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Creating List...
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5 mr-2" />
+                Create List
+              </>
+            )}
           </Button>
+          {createList.isPending && (
+            <p className="text-sm text-gray-600 text-center animate-pulse">
+              Please wait while we create your list...
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -274,14 +293,17 @@ export default function AdminCommentsTab() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="select-list">Select List</Label>
+            <Label htmlFor="select-list" className="text-base font-semibold">Select List</Label>
             <select
               id="select-list"
               value={selectedList}
               onChange={(e) => setSelectedList(e.target.value)}
-              className="w-full mt-1.5 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full mt-2 px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              disabled={listsLoading}
             >
-              <option value="">Choose a list...</option>
+              <option value="">
+                {listsLoading ? 'Loading lists...' : commentLists.length === 0 ? 'No lists available - create one above' : 'Choose a list...'}
+              </option>
               {commentLists.map((list) => (
                 <option key={list} value={list}>
                   {list}
@@ -337,6 +359,7 @@ export default function AdminCommentsTab() {
                       placeholder="Enter comments, one per line..."
                       rows={6}
                       className="mt-1.5"
+                      disabled={addBulk.isPending}
                     />
                   </div>
                 ) : (
@@ -348,6 +371,7 @@ export default function AdminCommentsTab() {
                       onChange={(e) => setSingleComment(e.target.value)}
                       placeholder="Enter a single comment..."
                       className="mt-1.5"
+                      disabled={addSingle.isPending}
                     />
                   </div>
                 )}
@@ -358,8 +382,17 @@ export default function AdminCommentsTab() {
                   className="w-full btn-gradient"
                   type="button"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  {addBulk.isPending || addSingle.isPending ? 'Adding...' : 'Add Comments'}
+                  {addBulk.isPending || addSingle.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Comments
+                    </>
+                  )}
                 </Button>
               </div>
 
@@ -375,7 +408,11 @@ export default function AdminCommentsTab() {
                       disabled={resetList.isPending}
                       type="button"
                     >
-                      <RotateCcw className="w-4 h-4 mr-2" />
+                      {resetList.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                      )}
                       Reset All
                     </Button>
                     <Button
@@ -385,7 +422,11 @@ export default function AdminCommentsTab() {
                       disabled={deleteList.isPending}
                       type="button"
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
+                      {deleteList.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 mr-2" />
+                      )}
                       Delete List
                     </Button>
                   </div>
@@ -419,7 +460,11 @@ export default function AdminCommentsTab() {
                         disabled={deleteComment.isPending}
                         type="button"
                       >
-                        <Trash2 className="w-4 h-4 text-red-600" />
+                        {deleteComment.isPending ? (
+                          <Loader2 className="w-4 h-4 text-red-600 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 text-red-600" />
+                        )}
                       </Button>
                     </div>
                   ))

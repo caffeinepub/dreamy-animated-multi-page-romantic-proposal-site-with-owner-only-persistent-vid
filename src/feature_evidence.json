@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-submit-button-in-the-customer-view-page-customerviewpage-tsx-so-it-properly-handles-click-events-and-saves-data-in-production-deployment-matching-the-working-behavior-in-draft-mode",
-      "featureTitle": "Fix the submit button in the Customer View page (CustomerViewPage.tsx) so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
+      "featureId": "feature-fix-the-choose-a-list-button-in-the-create-new-comment-list-section-so-that-clicking-it-successfully-creates-a-new-comment-list-with-the-entered-name-e-g-app7-and-triggers-the-backend-storage-operation",
+      "featureTitle": "Fix the 'Choose a list...' button in the 'Create New Comment List' section so that clicking it successfully creates a new comment list with the entered name (e.g., 'App7') and triggers the backend storage operation",
       "files": [
-        "frontend/src/hooks/useCommentGenerator.ts",
-        "frontend/src/pages/CustomerViewPage.tsx"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,15 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-review-and-fix-event-handler-binding-for-all-form-submit-buttons-across-the-application-to-ensure-they-work-consistently-in-both-development-and-production-builds",
-      "featureTitle": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
+      "featureId": "feature-make-newly-created-comment-lists-automatically-appear-in-the-manage-existing-lists-dropdown-immediately-after-creation-without-requiring-a-page-refresh",
+      "featureTitle": "Make newly created comment lists automatically appear in the 'Manage Existing Lists' dropdown immediately after creation without requiring a page refresh",
       "files": [
-        "frontend/src/components/admin/AdminChatTab.tsx",
         "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/components/admin/AdminLiveListTab.tsx",
-        "frontend/src/components/admin/AdminSettingsTab.tsx",
-        "frontend/src/pages/LiveListCheckerPage.tsx",
-        "frontend/src/pages/UploadSectionPage.tsx"
+        "frontend/src/hooks/useAdminComments.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -48,12 +43,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-verify-that-the-comment-generation-functionality-both-single-and-bulk-correctly-triggers-and-saves-data-through-the-submit-actions-in-production-environment",
-      "featureTitle": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
+      "featureId": "feature-fix-all-button-click-event-handlers-throughout-the-admin-panel-to-ensure-they-respond-properly-when-clicked-in-production-deployment",
+      "featureTitle": "Fix all button click event handlers throughout the Admin Panel to ensure they respond properly when clicked in production deployment",
       "files": [
-        "frontend/src/hooks/useCommentGenerator.ts",
-        "frontend/src/lib/deviceId.ts",
-        "frontend/src/pages/CustomerViewPage.tsx"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -66,6 +59,47 @@
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-optimize-frontend-performance-to-reduce-response-time-and-eliminate-ui-glitches-particularly-focusing-on-form-submission-and-list-rendering-operations",
+      "featureTitle": "Optimize frontend performance to reduce response time and eliminate UI glitches, particularly focusing on form submission and list rendering operations",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-clear-the-list-name-input-field-after-successfully-creating-a-new-comment-list-to-allow-immediate-creation-of-another-list",
+      "featureTitle": "Clear the list name input field after successfully creating a new comment list to allow immediate creation of another list",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

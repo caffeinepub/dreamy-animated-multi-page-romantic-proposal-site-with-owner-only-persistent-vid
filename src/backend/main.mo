@@ -50,6 +50,11 @@ actor {
 
   // CUSTOMER VIEW
   public query ({ caller }) func getAvailableCommentLists() : async [Text] {
+    // Allow all authenticated users including guests
+    if (not AccessControl.hasPermission(accessControlState, caller, #guest)) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+    
     var result = List.empty<Text>();
     for ((name, _list) in commentLists.entries()) {
       result.add(name);
@@ -58,6 +63,11 @@ actor {
   };
 
   public query ({ caller }) func getCommentListSummary(listName : Text) : async ?CommentListSummary {
+    // Allow all authenticated users including guests
+    if (not AccessControl.hasPermission(accessControlState, caller, #guest)) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+    
     switch (commentLists.get(listName)) {
       case (null) { null };
       case (?list) {
@@ -77,6 +87,11 @@ actor {
   };
 
   public shared ({ caller }) func generateSingleComment(listName : Text, deviceId : Text) : async Text {
+    // Allow all authenticated users including guests
+    if (not AccessControl.hasPermission(accessControlState, caller, #guest)) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+    
     let trackerKey = listName # "_" # deviceId;
 
     // Check if this device has already used the list

@@ -9,9 +9,14 @@ export function useGetAvailableCommentLists() {
     queryKey: ['commentLists'],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getAvailableCommentLists();
+      console.log('[useAdminComments] Fetching available comment lists...');
+      const lists = await actor.getAvailableCommentLists();
+      console.log('[useAdminComments] Fetched lists:', lists);
+      return lists;
     },
     enabled: !!actor && !isFetching,
+    staleTime: 1000,
+    refetchOnMount: true,
   });
 }
 
@@ -36,11 +41,18 @@ export function useCreateCommentList() {
   return useMutation({
     mutationFn: async (name: string) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createCommentList(name);
+      console.log('[useAdminComments] Creating comment list:', name);
+      const result = await actor.createCommentList(name);
+      console.log('[useAdminComments] List created successfully');
+      return result;
     },
     onSuccess: () => {
+      console.log('[useAdminComments] Invalidating queries after list creation');
       queryClient.invalidateQueries({ queryKey: ['commentLists'] });
       queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+    },
+    onError: (error) => {
+      console.error('[useAdminComments] Error creating list:', error);
     },
   });
 }

@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the submit button in the Customer View page so it responds to clicks and saves data properly in the production environment.
+**Goal:** Fix non-functional submit button in Admin Panel and ensure newly created comment lists appear immediately in the dropdown without page refresh.
 
 **Planned changes:**
-- Fix submit button click event handling in CustomerViewPage.tsx for production deployment
-- Review and ensure all form submit button event handlers are properly bound across the application
-- Verify comment generation (single and bulk) correctly triggers and saves data in production
+- Fix the "Choose a list..." button click handler so it successfully creates a new comment list and triggers backend storage
+- Auto-populate newly created lists in the "Manage Existing Lists" dropdown immediately after creation by invalidating React Query cache
+- Clear the list name input field after successful creation
+- Fix all button click event handlers throughout the Admin Panel to respond properly in production
+- Optimize form submission and list rendering to reduce response time and eliminate UI glitches
 
-**User-visible outcome:** Users can successfully click the submit button in the Customer View page to save data and generate comments in the production environment, matching the working behavior in draft mode.
+**User-visible outcome:** Admin users can create new comment lists (like "App7") by clicking the submit button, see them immediately appear in the dropdown below, and continue creating additional lists without manual page refresh or input clearing.

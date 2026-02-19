@@ -1,95 +1,123 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix submit button not responding in production environment",
+  "title": "Fix non-functional submit button and comment list creation in Admin Panel",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix the submit button in CustomerViewPage.tsx so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
+      "summary": "Fix the 'Choose a list...' button in the 'Create New Comment List' section so that clicking it successfully creates a new comment list with the entered name and triggers the backend storage operation",
       "acceptanceCriteria": [
-        "Submit button responds to clicks in production environment",
-        "Data saves correctly when submit button is clicked in production",
-        "Submit button behavior matches between draft and production deployments",
-        "No console errors appear when clicking the submit button"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/CustomerViewPage.tsx",
-          "operation": "modify",
-          "description": "Review and fix event handler binding for both single and bulk comment generation submit buttons. Ensure onClick handlers are properly bound and not lost during production build optimization. Verify that all async operations (generateSingleComment, generateBulkComments) are properly awaited and error-handled. Add console logging for debugging production issues. Ensure form submission preventDefault is called correctly. Check that all state updates after submission are properly triggering re-renders."
-        },
-        {
-          "path": "frontend/src/hooks/useCommentGenerator.ts",
-          "operation": "modify",
-          "description": "Review the React Query mutation configurations for generateSingleComment and generateBulkComments. Ensure mutations are properly configured with onSuccess/onError callbacks. Verify that the mutation functions correctly handle the backend actor calls and return values. Add error boundary handling for production build edge cases. Ensure proper query invalidation after successful mutations."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
-      "acceptanceCriteria": [
-        "All submit buttons have properly bound onClick handlers",
-        "Event handlers are correctly bundled in production build",
-        "Form submissions trigger expected backend calls in production"
+        "Clicking the 'Choose a list...' button with a valid list name creates the comment list",
+        "The button click handler properly triggers the form submission",
+        "Backend successfully stores the new comment list",
+        "User receives visual feedback (success message or loading state) during creation"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Review all button onClick handlers for creating lists, adding single comments, bulk uploading comments, deleting comments, and resetting lists. Ensure event handlers use proper arrow function syntax or useCallback to prevent binding issues in production. Verify form submission handling and preventDefault calls. Add proper error handling and loading states for all mutations."
+          "description": "Fix the button click handler in the 'Create New Comment List' section. Replace the 'Choose a list...' button with a proper submit button element (type='button' or type='submit') that correctly binds to the createList mutation. Ensure the onClick handler calls the createCommentList mutation with the entered list name. Add proper disabled state during mutation loading. Add visual feedback (loading spinner or disabled state) during the creation operation. Verify the component re-renders correctly after successful creation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Make newly created comment lists automatically appear in the 'Manage Existing Lists' dropdown immediately after creation without requiring a page refresh",
+      "acceptanceCriteria": [
+        "After creating a list like 'App7', it immediately appears in the 'Select List' dropdown under 'Manage Existing Lists'",
+        "The dropdown updates without requiring manual refresh",
+        "React Query cache is invalidated to fetch the updated list"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useAdminComments.ts",
+          "operation": "modify",
+          "description": "In the useCreateCommentList mutation's onSuccess callback, ensure the React Query cache for 'availableCommentLists' is invalidated using queryClient.invalidateQueries. This will trigger a refetch of the available lists and update the dropdown immediately after successful creation."
         },
         {
-          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
+          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Review all button onClick handlers for creating apps, adding usernames (bulk and comma-separated), deleting apps, and reset operations. Ensure proper event handler binding using arrow functions or useCallback. Verify that all async operations are properly awaited and have error handling. Ensure state updates trigger proper re-renders after mutations complete."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
-          "operation": "modify",
-          "description": "Review button onClick handlers for setting and resetting the bulk generator key. Ensure proper event handler binding and async operation handling. Verify that form submissions properly call the backend mutations and handle success/error states correctly in production."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminChatTab.tsx",
-          "operation": "modify",
-          "description": "Review the send button onClick handler for adding chat messages. Ensure proper event binding and form submission handling. Verify that the mutation is called correctly and state updates occur after successful message submission."
-        },
-        {
-          "path": "frontend/src/pages/UploadSectionPage.tsx",
-          "operation": "modify",
-          "description": "Review the upload button/form submission handler for rating image uploads. Ensure proper event handler binding and file upload handling. Verify that the ExternalBlob upload with progress tracking works correctly in production builds. Ensure proper error handling and success state updates."
-        },
-        {
-          "path": "frontend/src/pages/LiveListCheckerPage.tsx",
-          "operation": "modify",
-          "description": "Review the check button onClick handler for username checking functionality. Ensure proper event binding and async operation handling. Verify that the mutation correctly calls the backend and updates the results display in production."
+          "description": "Ensure the 'Select List' dropdown in the 'Manage Existing Lists' section properly subscribes to the availableCommentLists query and re-renders when the query data changes. Verify that the dropdown component's options are dynamically bound to the query result."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
+      "summary": "Fix all button click event handlers throughout the Admin Panel to ensure they respond properly when clicked in production deployment",
       "acceptanceCriteria": [
-        "Single comment generation saves and displays results in production",
-        "Bulk comment generation processes and stores data correctly in production",
-        "Generated comments persist in backend storage after submission",
-        "UI updates to show success/failure states after submission"
+        "All buttons in the Admin Panel respond to click events",
+        "Click handlers execute their intended actions consistently",
+        "No console errors related to event handler binding",
+        "Buttons work identically in both draft and production environments"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CustomerViewPage.tsx",
+          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Add comprehensive error handling and success feedback for both single and bulk comment generation. Ensure that after successful generation, the UI updates to display the generated comments with proper loading and error states. Verify localStorage tracking of used lists is working correctly. Add console logging to track the complete flow from button click to backend call to UI update for debugging production issues. Ensure proper state management so that generated comments are displayed and persisted correctly."
+          "description": "Review all button elements for proper event handler binding. Ensure onClick handlers are correctly bound using arrow functions or proper this context. Replace any non-interactive elements (divs, spans) styled as buttons with actual button elements. Add explicit type='button' attributes to prevent unintended form submissions. Verify all mutation hooks are properly called within click handlers."
         },
         {
-          "path": "frontend/src/hooks/useCommentGenerator.ts",
+          "path": "frontend/src/components/admin/AdminChatTab.tsx",
           "operation": "modify",
-          "description": "Ensure that both generateSingleComment and generateBulkComments mutations properly call the backend methods (generateSingleComment with listName and deviceId, generateBulkComments with listName, count, and accessKey). Verify that successful responses trigger query invalidation for dependent data (like comment list summaries). Add proper error handling with user-friendly error messages. Ensure mutations return the generated data correctly for the UI to consume."
+          "description": "Review the send message button for proper event handler binding. Ensure the onClick handler correctly calls the addChatMessage mutation. Add type='button' or type='submit' as appropriate. Verify the button is not accidentally disabled or has CSS preventing pointer events."
         },
         {
-          "path": "frontend/src/lib/deviceId.ts",
+          "path": "frontend/src/components/admin/AdminImagesTab.tsx",
           "operation": "modify",
-          "description": "Review the device ID generation and localStorage persistence logic. Ensure that getDeviceId() consistently returns the same ID across sessions and that markListAsUsed/hasUsedList correctly track which lists have been used for single generation. Verify that localStorage operations don't fail silently in production and add error handling if needed."
+          "description": "Review delete buttons for rating images. Ensure onClick handlers correctly call the deleteRatingImage mutation with the proper image index. Add type='button' to prevent form submission behavior. Verify buttons are properly enabled and have correct event propagation."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
+          "operation": "modify",
+          "description": "Review all buttons for creating/deleting apps, adding usernames, and reset operations. Ensure onClick handlers are properly bound and call the correct mutations. Add type='button' attributes. Verify no CSS is blocking pointer events or making buttons appear disabled when they should be enabled."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
+          "operation": "modify",
+          "description": "Review buttons for setting and resetting the bulk generator key. Ensure onClick handlers correctly call the respective mutations. Add type='button' attributes. Verify proper event binding and no CSS interference with click events."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Optimize frontend performance to reduce response time and eliminate UI glitches, particularly focusing on form submission and list rendering operations",
+      "acceptanceCriteria": [
+        "Form submissions complete within 2 seconds under normal conditions",
+        "UI updates render smoothly without flickering or layout shifts",
+        "Loading states are displayed during async operations",
+        "No visual glitches during list creation or dropdown population"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
+          "operation": "modify",
+          "description": "Add loading indicators (spinners or disabled states with loading text) to all buttons during mutation operations. Ensure isLoading states from mutation hooks are used to disable buttons and show feedback. Add optimistic UI updates where appropriate to make the interface feel more responsive. Prevent multiple simultaneous submissions by disabling buttons during pending operations."
+        },
+        {
+          "path": "frontend/src/hooks/useAdminComments.ts",
+          "operation": "modify",
+          "description": "Review React Query mutation configurations. Add appropriate retry logic and timeout settings. Ensure error handling is robust and doesn't leave the UI in a broken state. Consider adding optimistic updates for create operations to improve perceived performance."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
+          "operation": "modify",
+          "description": "Add loading states to all async operations. Ensure bulk username uploads show progress feedback. Add proper disabled states during operations to prevent race conditions or duplicate submissions."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Clear the list name input field after successfully creating a new comment list to allow immediate creation of another list",
+      "acceptanceCriteria": [
+        "Input field clears automatically after successful list creation",
+        "User can immediately enter a new list name without manual clearing",
+        "Form state resets properly after submission"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
+          "operation": "modify",
+          "description": "Add state management for the list name input field using useState. In the onSuccess callback of the createCommentList mutation, reset the input field state to an empty string. Ensure the input value is controlled by React state and bound to the state variable."
         }
       ]
     }

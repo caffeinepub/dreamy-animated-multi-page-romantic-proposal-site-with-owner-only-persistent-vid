@@ -1,82 +1,120 @@
 {
   "kind": "build_request",
-  "title": "Fix submit button not responding in production environment",
-  "projectName": "Comment Generator",
+  "title": "Fix non-functional submit button and comment list creation in Admin Panel",
+  "projectName": "APP REVIEW",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the submit button in the Customer View page (CustomerViewPage.tsx) so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
-      "target": "frontend",
+      "text": "Fix the 'Choose a list...' button in the 'Create New Comment List' section so that clicking it successfully creates a new comment list with the entered name (e.g., 'App7') and triggers the backend storage operation",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-submit-not-working",
-          "msg-user-data-entry",
-          "msg-user-draft-working"
+          "msg-1",
+          "msg-2",
+          "msg-3"
         ],
         "quotes": [
-          "submit button not working",
-          "save data and work function",
-          "draft working good but not live working at all"
+          "When I enter app name and click on submit button nothing happens",
+          "when i click the submit button so the app list shown below automatic before"
         ]
       },
       "acceptanceCriteria": [
-        "Submit button responds to clicks in production environment",
-        "Data saves correctly when submit button is clicked in production",
-        "Submit button behavior matches between draft and production deployments",
-        "No console errors appear when clicking the submit button"
+        "Clicking the 'Choose a list...' button with a valid list name creates the comment list",
+        "The button click handler properly triggers the form submission",
+        "Backend successfully stores the new comment list",
+        "User receives visual feedback (success message or loading state) during creation"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
+      "text": "Make newly created comment lists automatically appear in the 'Manage Existing Lists' dropdown immediately after creation without requiring a page refresh",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-assistant-event-handlers"
+          "msg-2",
+          "msg-3"
         ],
         "quotes": [
-          "event handlers are properly bound and deployed"
+          "when i click the submit button so the app list shown below automatic before"
         ]
       },
       "acceptanceCriteria": [
-        "All submit buttons have properly bound onClick handlers",
-        "Event handlers are correctly bundled in production build",
-        "Form submissions trigger expected backend calls in production"
+        "After creating a list like 'App7', it immediately appears in the 'Select List' dropdown under 'Manage Existing Lists'",
+        "The dropdown updates without requiring manual refresh",
+        "React Query cache is invalidated to fetch the updated list"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
-      "target": "both",
+      "text": "Fix all button click event handlers throughout the Admin Panel to ensure they respond properly when clicked in production deployment",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-data-entry"
+          "msg-3",
+          "msg-4"
         ],
         "quotes": [
-          "data entry",
-          "save data and work function"
+          "I mean button not work only",
+          "Button click handlers aren't triggering properly"
         ]
       },
       "acceptanceCriteria": [
-        "Single comment generation saves and displays results in production",
-        "Bulk comment generation processes and stores data correctly in production",
-        "Generated comments persist in backend storage after submission",
-        "UI updates to show success/failure states after submission"
+        "All buttons in the Admin Panel respond to click events",
+        "Click handlers execute their intended actions consistently",
+        "No console errors related to event handler binding",
+        "Buttons work identically in both draft and production environments"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Optimize frontend performance to reduce response time and eliminate UI glitches, particularly focusing on form submission and list rendering operations",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "just update and remove glitches or bugs from websites also reduce response time"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Form submissions complete within 2 seconds under normal conditions",
+        "UI updates render smoothly without flickering or layout shifts",
+        "Loading states are displayed during async operations",
+        "No visual glitches during list creation or dropdown population"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Clear the list name input field after successfully creating a new comment list to allow immediate creation of another list",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Input field clears automatically after successful list creation",
+        "User can immediately enter a new list name without manual clearing",
+        "Form state resets properly after submission"
       ]
     }
   ],
   "constraints": [
-    "Maintain existing functionality that works in draft mode",
-    "Do not modify the backend actor implementation",
-    "Preserve the current UI/UX design and layout",
-    "Keep the single-actor Motoko architecture unchanged"
+    "Maintain the existing single-actor Motoko backend architecture",
+    "Do not modify the Internet Identity authentication system (frontend/src/hooks/useInternetIdentity.ts)",
+    "Preserve the admin token authorization system",
+    "Keep the existing UI component structure from shadcn/ui",
+    "Maintain compatibility with the device-based single-use tracking system"
   ],
   "nonGoals": [
-    "Adding new features beyond fixing the production deployment issue",
-    "Redesigning the form submission flow",
-    "Changing the data structure or backend API",
-    "Modifying authentication or authorization logic"
+    "Redesigning the Admin Panel UI layout or visual styling",
+    "Adding new comment list features beyond creation and display",
+    "Implementing real-time updates with WebSockets",
+    "Adding user notifications or toast systems",
+    "Modifying the backend data model or API structure beyond bug fixes"
   ],
   "imageRequirements": {
     "required": [],
