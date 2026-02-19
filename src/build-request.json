@@ -1,120 +1,101 @@
 {
   "kind": "build_request",
-  "title": "Fix non-functional submit button and comment list creation in Admin Panel",
-  "projectName": "APP REVIEW",
+  "title": "Fix comment list creation stuck in loading state",
+  "projectName": "App Review",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Fix the 'Choose a list...' button in the 'Create New Comment List' section so that clicking it successfully creates a new comment list with the entered name (e.g., 'App7') and triggers the backend storage operation",
-      "target": "both",
+      "id": "REQ-6",
+      "text": "Fix the backend createCommentList method in backend/main.mo to properly persist new comment lists and return success confirmation",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2",
-          "msg-3"
+          "msg-13",
+          "msg-15"
         ],
         "quotes": [
-          "When I enter app name and click on submit button nothing happens",
-          "when i click the submit button so the app list shown below automatic before"
+          "List creation gets stuck in 'Creating List...' loading state and never completes",
+          "Lists should be stored in the Motoko backend canister so all users can access them"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking the 'Choose a list...' button with a valid list name creates the comment list",
-        "The button click handler properly triggers the form submission",
-        "Backend successfully stores the new comment list",
-        "User receives visual feedback (success message or loading state) during creation"
+        "The createCommentList method successfully stores new lists in stable storage",
+        "The method returns a proper success response that the frontend can handle",
+        "All users can access newly created lists from the backend"
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Make newly created comment lists automatically appear in the 'Manage Existing Lists' dropdown immediately after creation without requiring a page refresh",
+      "id": "REQ-7",
+      "text": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2",
-          "msg-3"
+          "msg-13",
+          "msg-15"
         ],
         "quotes": [
-          "when i click the submit button so the app list shown below automatic before"
+          "The 'Creating List...' button is stuck in loading state when you try to create the 'Story tv' comment list",
+          "Fix the frontend async handling so the creation actually completes and the UI updates properly"
         ]
       },
       "acceptanceCriteria": [
-        "After creating a list like 'App7', it immediately appears in the 'Select List' dropdown under 'Manage Existing Lists'",
-        "The dropdown updates without requiring manual refresh",
-        "React Query cache is invalidated to fetch the updated list"
+        "The loading state ('Creating List...') resolves after backend responds",
+        "Success or error feedback is displayed to the user",
+        "The input field is cleared after successful creation"
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Fix all button click event handlers throughout the Admin Panel to ensure they respond properly when clicked in production deployment",
+      "id": "REQ-8",
+      "text": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3",
-          "msg-4"
+          "msg-11",
+          "msg-13"
         ],
         "quotes": [
-          "I mean button not work only",
-          "Button click handlers aren't triggering properly"
+          "After successful creation, the new list should appear in the dropdown under 'Manage Existing Lists'",
+          "yes appear in the drop-down"
         ]
       },
       "acceptanceCriteria": [
-        "All buttons in the Admin Panel respond to click events",
-        "Click handlers execute their intended actions consistently",
-        "No console errors related to event handler binding",
-        "Buttons work identically in both draft and production environments"
+        "Newly created lists immediately appear in the 'Select List' dropdown",
+        "The dropdown updates from 'No lists available - create one above' to show the new list",
+        "The dropdown correctly populates with the list name that was just created (e.g., 'Story tv')"
       ]
     },
     {
-      "id": "REQ-4",
-      "text": "Optimize frontend performance to reduce response time and eliminate UI glitches, particularly focusing on form submission and list rendering operations",
+      "id": "REQ-9",
+      "text": "Add proper error handling and user feedback for comment list creation failures",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-13",
+          "msg-15"
         ],
         "quotes": [
-          "just update and remove glitches or bugs from websites also reduce response time"
+          "Add proper error handling and user feedback",
+          "Proper feedback if something goes wrong"
         ]
       },
       "acceptanceCriteria": [
-        "Form submissions complete within 2 seconds under normal conditions",
-        "UI updates render smoothly without flickering or layout shifts",
-        "Loading states are displayed during async operations",
-        "No visual glitches during list creation or dropdown population"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Clear the list name input field after successfully creating a new comment list to allow immediate creation of another list",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1",
-          "msg-2"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Input field clears automatically after successful list creation",
-        "User can immediately enter a new list name without manual clearing",
-        "Form state resets properly after submission"
+        "Display clear error messages if list creation fails",
+        "The loading state exits properly even on error",
+        "User can retry creation after an error"
       ]
     }
   ],
   "constraints": [
-    "Maintain the existing single-actor Motoko backend architecture",
-    "Do not modify the Internet Identity authentication system (frontend/src/hooks/useInternetIdentity.ts)",
-    "Preserve the admin token authorization system",
-    "Keep the existing UI component structure from shadcn/ui",
-    "Maintain compatibility with the device-based single-use tracking system"
+    "Keep all Motoko logic in the single main actor file (backend/main.mo)",
+    "Do not modify immutable frontend paths: useInternetIdentity.ts, useInternetIdentity.tsx, useActor.ts, main.tsx, components/ui/*",
+    "Maintain the existing single-actor backend architecture",
+    "Preserve the current React Query pattern for cache invalidation"
   ],
   "nonGoals": [
-    "Redesigning the Admin Panel UI layout or visual styling",
-    "Adding new comment list features beyond creation and display",
-    "Implementing real-time updates with WebSockets",
-    "Adding user notifications or toast systems",
-    "Modifying the backend data model or API structure beyond bug fixes"
+    "Adding authentication requirements for list creation",
+    "Implementing list editing or renaming features",
+    "Adding permissions or access control to comment lists",
+    "Changing the UI design or styling of the list creation interface"
   ],
   "imageRequirements": {
     "required": [],

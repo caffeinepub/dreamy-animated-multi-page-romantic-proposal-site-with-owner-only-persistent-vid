@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix non-functional submit button in Admin Panel and ensure newly created comment lists appear immediately in the dropdown without page refresh.
+**Goal:** Fix the comment list creation feature so users can successfully create new lists without getting stuck in a loading state.
 
 **Planned changes:**
-- Fix the "Choose a list..." button click handler so it successfully creates a new comment list and triggers backend storage
-- Auto-populate newly created lists in the "Manage Existing Lists" dropdown immediately after creation by invalidating React Query cache
-- Clear the list name input field after successful creation
-- Fix all button click event handlers throughout the Admin Panel to respond properly in production
-- Optimize form submission and list rendering to reduce response time and eliminate UI glitches
+- Fix backend createCommentList method to properly persist new comment lists in stable storage and return success confirmation
+- Fix frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await backend response
+- Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created lists after successful creation
+- Add proper error handling and user feedback for list creation failures
 
-**User-visible outcome:** Admin users can create new comment lists (like "App7") by clicking the submit button, see them immediately appear in the dropdown below, and continue creating additional lists without manual page refresh or input clearing.
+**User-visible outcome:** Users can successfully create new comment lists (like "Story tv"), see the loading state resolve, receive success/error feedback, and immediately see their new list appear in the "Select List" dropdown for management.

@@ -1,123 +1,68 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix non-functional submit button and comment list creation in Admin Panel",
+  "title": "Fix comment list creation stuck in loading state",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Fix the 'Choose a list...' button in the 'Create New Comment List' section so that clicking it successfully creates a new comment list with the entered name and triggers the backend storage operation",
+      "id": "REQ-7",
+      "summary": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
       "acceptanceCriteria": [
-        "Clicking the 'Choose a list...' button with a valid list name creates the comment list",
-        "The button click handler properly triggers the form submission",
-        "Backend successfully stores the new comment list",
-        "User receives visual feedback (success message or loading state) during creation"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
-          "operation": "modify",
-          "description": "Fix the button click handler in the 'Create New Comment List' section. Replace the 'Choose a list...' button with a proper submit button element (type='button' or type='submit') that correctly binds to the createList mutation. Ensure the onClick handler calls the createCommentList mutation with the entered list name. Add proper disabled state during mutation loading. Add visual feedback (loading spinner or disabled state) during the creation operation. Verify the component re-renders correctly after successful creation."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Make newly created comment lists automatically appear in the 'Manage Existing Lists' dropdown immediately after creation without requiring a page refresh",
-      "acceptanceCriteria": [
-        "After creating a list like 'App7', it immediately appears in the 'Select List' dropdown under 'Manage Existing Lists'",
-        "The dropdown updates without requiring manual refresh",
-        "React Query cache is invalidated to fetch the updated list"
+        "The loading state ('Creating List...') resolves after backend responds",
+        "Success or error feedback is displayed to the user",
+        "The input field is cleared after successful creation"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useAdminComments.ts",
           "operation": "modify",
-          "description": "In the useCreateCommentList mutation's onSuccess callback, ensure the React Query cache for 'availableCommentLists' is invalidated using queryClient.invalidateQueries. This will trigger a refetch of the available lists and update the dropdown immediately after successful creation."
+          "description": "Fix the createCommentList mutation to properly await the backend createCommentList method response and handle the Promise resolution correctly. Ensure the mutation's onSuccess callback triggers query invalidation for ['availableCommentLists'] to refresh the dropdown. Add proper error handling in onError to capture and surface backend errors to the UI."
         },
         {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Ensure the 'Select List' dropdown in the 'Manage Existing Lists' section properly subscribes to the availableCommentLists query and re-renders when the query data changes. Verify that the dropdown component's options are dynamically bound to the query result."
+          "description": "Update the handleCreateList function to properly await the createCommentList mutation and handle the async response. Clear the newListName input field in the onSuccess callback after successful creation. Add toast notifications or inline error messages to display success/failure feedback to the user. Ensure the loading state (isCreating) is properly bound to the mutation's isPending state."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Fix all button click event handlers throughout the Admin Panel to ensure they respond properly when clicked in production deployment",
+      "id": "REQ-8",
+      "summary": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
       "acceptanceCriteria": [
-        "All buttons in the Admin Panel respond to click events",
-        "Click handlers execute their intended actions consistently",
-        "No console errors related to event handler binding",
-        "Buttons work identically in both draft and production environments"
+        "Newly created lists immediately appear in the 'Select List' dropdown",
+        "The dropdown updates from 'No lists available - create one above' to show the new list",
+        "The dropdown correctly populates with the list name that was just created (e.g., 'Story tv')"
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
-          "operation": "modify",
-          "description": "Review all button elements for proper event handler binding. Ensure onClick handlers are correctly bound using arrow functions or proper this context. Replace any non-interactive elements (divs, spans) styled as buttons with actual button elements. Add explicit type='button' attributes to prevent unintended form submissions. Verify all mutation hooks are properly called within click handlers."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminChatTab.tsx",
-          "operation": "modify",
-          "description": "Review the send message button for proper event handler binding. Ensure the onClick handler correctly calls the addChatMessage mutation. Add type='button' or type='submit' as appropriate. Verify the button is not accidentally disabled or has CSS preventing pointer events."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminImagesTab.tsx",
-          "operation": "modify",
-          "description": "Review delete buttons for rating images. Ensure onClick handlers correctly call the deleteRatingImage mutation with the proper image index. Add type='button' to prevent form submission behavior. Verify buttons are properly enabled and have correct event propagation."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
-          "operation": "modify",
-          "description": "Review all buttons for creating/deleting apps, adding usernames, and reset operations. Ensure onClick handlers are properly bound and call the correct mutations. Add type='button' attributes. Verify no CSS is blocking pointer events or making buttons appear disabled when they should be enabled."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
-          "operation": "modify",
-          "description": "Review buttons for setting and resetting the bulk generator key. Ensure onClick handlers correctly call the respective mutations. Add type='button' attributes. Verify proper event binding and no CSS interference with click events."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Optimize frontend performance to reduce response time and eliminate UI glitches, particularly focusing on form submission and list rendering operations",
-      "acceptanceCriteria": [
-        "Form submissions complete within 2 seconds under normal conditions",
-        "UI updates render smoothly without flickering or layout shifts",
-        "Loading states are displayed during async operations",
-        "No visual glitches during list creation or dropdown population"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
-          "operation": "modify",
-          "description": "Add loading indicators (spinners or disabled states with loading text) to all buttons during mutation operations. Ensure isLoading states from mutation hooks are used to disable buttons and show feedback. Add optimistic UI updates where appropriate to make the interface feel more responsive. Prevent multiple simultaneous submissions by disabling buttons during pending operations."
-        },
         {
           "path": "frontend/src/hooks/useAdminComments.ts",
           "operation": "modify",
-          "description": "Review React Query mutation configurations. Add appropriate retry logic and timeout settings. Ensure error handling is robust and doesn't leave the UI in a broken state. Consider adding optimistic updates for create operations to improve perceived performance."
+          "description": "Ensure the createCommentList mutation's onSuccess callback calls queryClient.invalidateQueries({ queryKey: ['availableCommentLists'] }) to trigger an immediate refetch of the comment lists. Verify that the useGetAvailableCommentLists query has proper cache invalidation and refetch settings to respond to the invalidation."
         },
         {
-          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
+          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Add loading states to all async operations. Ensure bulk username uploads show progress feedback. Add proper disabled states during operations to prevent race conditions or duplicate submissions."
+          "description": "Verify that the Select List dropdown component is bound to the availableCommentLists data from useGetAvailableCommentLists. Ensure the dropdown re-renders automatically when the query data updates after cache invalidation. The dropdown should transition from showing 'No lists available - create one above' to displaying the newly created list name immediately after successful creation."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Clear the list name input field after successfully creating a new comment list to allow immediate creation of another list",
+      "id": "REQ-9",
+      "summary": "Add proper error handling and user feedback for comment list creation failures",
       "acceptanceCriteria": [
-        "Input field clears automatically after successful list creation",
-        "User can immediately enter a new list name without manual clearing",
-        "Form state resets properly after submission"
+        "Display clear error messages if list creation fails",
+        "The loading state exits properly even on error",
+        "User can retry creation after an error"
       ],
       "file_operations": [
         {
+          "path": "frontend/src/hooks/useAdminComments.ts",
+          "operation": "modify",
+          "description": "Add comprehensive error handling in the createCommentList mutation's onError callback. Extract error messages from backend Runtime.trap responses and format them for user display. Ensure the mutation properly resets the loading state on error and allows retry attempts."
+        },
+        {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Add state management for the list name input field using useState. In the onSuccess callback of the createCommentList mutation, reset the input field state to an empty string. Ensure the input value is controlled by React state and bound to the state variable."
+          "description": "Add user-visible error feedback UI elements (toast notifications or inline error messages) that display when list creation fails. Show the specific error message returned from the backend. Ensure the button exits the 'Creating List...' loading state and returns to 'Create List' even on error, allowing the user to retry. Add validation to prevent empty list names before submission."
         }
       ]
     }

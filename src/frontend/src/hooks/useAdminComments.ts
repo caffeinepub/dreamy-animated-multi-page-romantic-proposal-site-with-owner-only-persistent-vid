@@ -6,7 +6,7 @@ export function useGetAvailableCommentLists() {
   const { actor, isFetching } = useActor();
 
   return useQuery<string[]>({
-    queryKey: ['commentLists'],
+    queryKey: ['availableCommentLists'],
     queryFn: async () => {
       if (!actor) return [];
       console.log('[useAdminComments] Fetching available comment lists...');
@@ -15,8 +15,9 @@ export function useGetAvailableCommentLists() {
       return lists;
     },
     enabled: !!actor && !isFetching,
-    staleTime: 1000,
+    staleTime: 0,
     refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -42,14 +43,29 @@ export function useCreateCommentList() {
     mutationFn: async (name: string) => {
       if (!actor) throw new Error('Actor not available');
       console.log('[useAdminComments] Creating comment list:', name);
-      const result = await actor.createCommentList(name);
-      console.log('[useAdminComments] List created successfully');
-      return result;
+      
+      try {
+        await actor.createCommentList(name);
+        console.log('[useAdminComments] List created successfully');
+      } catch (error: any) {
+        console.error('[useAdminComments] Backend error:', error);
+        // Extract meaningful error message from backend trap
+        const errorMessage = error?.message || String(error);
+        if (errorMessage.includes('already exists')) {
+          throw new Error('A list with this name already exists');
+        } else if (errorMessage.includes('Unauthorized')) {
+          throw new Error('You do not have permission to create lists');
+        } else {
+          throw new Error(errorMessage || 'Failed to create list');
+        }
+      }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log('[useAdminComments] Invalidating queries after list creation');
-      queryClient.invalidateQueries({ queryKey: ['commentLists'] });
-      queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+      // Invalidate and refetch immediately
+      await queryClient.invalidateQueries({ queryKey: ['availableCommentLists'] });
+      await queryClient.refetchQueries({ queryKey: ['availableCommentLists'] });
+      await queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
     },
     onError: (error) => {
       console.error('[useAdminComments] Error creating list:', error);
@@ -64,11 +80,16 @@ export function useAddSingleComment() {
   return useMutation({
     mutationFn: async ({ listName, comment }: { listName: string; comment: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addSingleComment(listName, comment);
+      try {
+        await actor.addSingleComment(listName, comment);
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error);
+        throw new Error(errorMessage || 'Failed to add comment');
+      }
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['commentList', variables.listName] });
-      queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ['commentList', variables.listName] });
+      await queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
     },
   });
 }
@@ -80,11 +101,16 @@ export function useBulkUploadComments() {
   return useMutation({
     mutationFn: async ({ listName, comments }: { listName: string; comments: string[] }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.bulkUploadComments(listName, comments);
+      try {
+        await actor.bulkUploadComments(listName, comments);
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error);
+        throw new Error(errorMessage || 'Failed to upload comments');
+      }
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['commentList', variables.listName] });
-      queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ['commentList', variables.listName] });
+      await queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
     },
   });
 }
@@ -96,11 +122,16 @@ export function useDeleteComment() {
   return useMutation({
     mutationFn: async ({ listName, comment }: { listName: string; comment: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.deleteComment(listName, comment);
+      try {
+        await actor.deleteComment(listName, comment);
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error);
+        throw new Error(errorMessage || 'Failed to delete comment');
+      }
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['commentList', variables.listName] });
-      queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: ['commentList', variables.listName] });
+      await queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
     },
   });
 }
@@ -112,11 +143,16 @@ export function useResetList() {
   return useMutation({
     mutationFn: async (listName: string) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.resetList(listName);
+      try {
+        await actor.resetList(listName);
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error);
+        throw new Error(errorMessage || 'Failed to reset list');
+      }
     },
-    onSuccess: (_, listName) => {
-      queryClient.invalidateQueries({ queryKey: ['commentList', listName] });
-      queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+    onSuccess: async (_, listName) => {
+      await queryClient.invalidateQueries({ queryKey: ['commentList', listName] });
+      await queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
     },
   });
 }
@@ -128,11 +164,17 @@ export function useDeleteList() {
   return useMutation({
     mutationFn: async (listName: string) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.deleteList(listName);
+      try {
+        await actor.deleteList(listName);
+      } catch (error: any) {
+        const errorMessage = error?.message || String(error);
+        throw new Error(errorMessage || 'Failed to delete list');
+      }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['commentLists'] });
-      queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['availableCommentLists'] });
+      await queryClient.refetchQueries({ queryKey: ['availableCommentLists'] });
+      await queryClient.invalidateQueries({ queryKey: ['bulkCommentTotals'] });
     },
   });
 }

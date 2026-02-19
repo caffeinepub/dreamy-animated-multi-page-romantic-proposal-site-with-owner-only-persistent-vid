@@ -2,28 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-choose-a-list-button-in-the-create-new-comment-list-section-so-that-clicking-it-successfully-creates-a-new-comment-list-with-the-entered-name-e-g-app7-and-triggers-the-backend-storage-operation",
-      "featureTitle": "Fix the 'Choose a list...' button in the 'Create New Comment List' section so that clicking it successfully creates a new comment list with the entered name (e.g., 'App7') and triggers the backend storage operation",
-      "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-make-newly-created-comment-lists-automatically-appear-in-the-manage-existing-lists-dropdown-immediately-after-creation-without-requiring-a-page-refresh",
-      "featureTitle": "Make newly created comment lists automatically appear in the 'Manage Existing Lists' dropdown immediately after creation without requiring a page refresh",
+      "featureId": "feature-fix-the-frontend-async-handling-in-useadmincomments-ts-and-admincommentstab-tsx-to-properly-await-the-backend-response-when-creating-a-new-comment-list",
+      "featureTitle": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx",
         "frontend/src/hooks/useAdminComments.ts"
@@ -38,33 +18,13 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-7"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-all-button-click-event-handlers-throughout-the-admin-panel-to-ensure-they-respond-properly-when-clicked-in-production-deployment",
-      "featureTitle": "Fix all button click event handlers throughout the Admin Panel to ensure they respond properly when clicked in production deployment",
-      "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-optimize-frontend-performance-to-reduce-response-time-and-eliminate-ui-glitches-particularly-focusing-on-form-submission-and-list-rendering-operations",
-      "featureTitle": "Optimize frontend performance to reduce response time and eliminate UI glitches, particularly focusing on form submission and list rendering operations",
+      "featureId": "feature-update-the-manage-existing-lists-dropdown-to-automatically-refresh-and-display-newly-created-comment-lists-after-successful-creation",
+      "featureTitle": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx",
         "frontend/src/hooks/useAdminComments.ts"
@@ -79,15 +39,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-8"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-clear-the-list-name-input-field-after-successfully-creating-a-new-comment-list-to-allow-immediate-creation-of-another-list",
-      "featureTitle": "Clear the list name input field after successfully creating a new comment list to allow immediate creation of another list",
+      "featureId": "feature-add-proper-error-handling-and-user-feedback-for-comment-list-creation-failures",
+      "featureTitle": "Add proper error handling and user feedback for comment list creation failures",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx"
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -99,7 +60,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-9"
       ],
       "confidence": "high"
     }

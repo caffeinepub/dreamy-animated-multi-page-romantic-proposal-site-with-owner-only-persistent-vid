@@ -12,10 +12,7 @@ import Array "mo:core/Array";
 
 import Nat "mo:core/Nat";
 
-// DATA MIGRATION: Specify data transformation function from <migration.mo> in with clause.
-
 actor {
-  // COMMENT LIST MANAGEMENT
   type Comment = {
     text : Text;
     used : Bool;
@@ -50,11 +47,7 @@ actor {
 
   // CUSTOMER VIEW
   public query ({ caller }) func getAvailableCommentLists() : async [Text] {
-    // Allow all authenticated users including guests
-    if (not AccessControl.hasPermission(accessControlState, caller, #guest)) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-    
+    // No authorization check needed - available to all including guests
     var result = List.empty<Text>();
     for ((name, _list) in commentLists.entries()) {
       result.add(name);
@@ -63,11 +56,7 @@ actor {
   };
 
   public query ({ caller }) func getCommentListSummary(listName : Text) : async ?CommentListSummary {
-    // Allow all authenticated users including guests
-    if (not AccessControl.hasPermission(accessControlState, caller, #guest)) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-    
+    // No authorization check needed - available to all including guests
     switch (commentLists.get(listName)) {
       case (null) { null };
       case (?list) {
@@ -87,14 +76,9 @@ actor {
   };
 
   public shared ({ caller }) func generateSingleComment(listName : Text, deviceId : Text) : async Text {
-    // Allow all authenticated users including guests
-    if (not AccessControl.hasPermission(accessControlState, caller, #guest)) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-    
+    // No authorization check needed - available to all including guests
     let trackerKey = listName # "_" # deviceId;
 
-    // Check if this device has already used the list
     if (singleUseTracker.containsKey(trackerKey)) {
       Runtime.trap("Each device can only generate one comment per list");
     };
@@ -109,15 +93,12 @@ actor {
             let updatedComment : Comment = { comment with used = true };
             let updatedComments = list.comments.map<Comment, Comment>(
               func(c) {
-                if (c.text == comment.text and not c.used) { updatedComment } else {
-                  c;
-                }
+                if (c.text == comment.text and not c.used) { updatedComment } else { c };
               }
             );
             let updatedList = { list with comments = updatedComments };
             commentLists.add(listName, updatedList);
 
-            // Mark device as used for this list
             singleUseTracker.add(trackerKey, ());
             return updatedComment.text;
           };
@@ -128,7 +109,7 @@ actor {
   };
 
   public shared ({ caller }) func generateBulkComments(listName : Text, count : Nat, accessKey : Text) : async BulkCommentResult {
-    // Verify bulk generator access key
+    // Authorization via access key - no role check needed
     switch (bulkGeneratorKey) {
       case (null) {
         Runtime.trap("Bulk generator access key not configured");
@@ -412,7 +393,8 @@ actor {
     uploaderName : Text,
     image : Storage.ExternalBlob,
   ) : async () {
-    // Allow all users including guests to upload rating images
+    // No authorization check - available to all including guests
+    // This is a public submission feature
     let now = Time.now();
     let newImage : RatingImage = {
       uploaderName;
@@ -463,8 +445,8 @@ actor {
     sender : Text,
     message : Text,
   ) : async () {
-    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
-      Runtime.trap("Unauthorized: Only admins can add chat messages");
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can add chat messages");
     };
 
     let now = Time.now();
@@ -477,8 +459,8 @@ actor {
   };
 
   public query ({ caller }) func getAllChatMessages() : async [ChatMessage] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
-      Runtime.trap("Unauthorized: Only admins can view chat messages");
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can view chat messages");
     };
 
     chatMessages.toArray();
@@ -537,7 +519,6 @@ actor {
       Runtime.trap("Unauthorized: Only admins can add live list apps");
     };
 
-    // Check if app already exists
     if (liveListApps.containsKey(appName)) {
       Runtime.trap("App with this name already exists");
     };

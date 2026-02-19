@@ -44,17 +44,19 @@ export default function AdminCommentsTab() {
     
     console.log('[AdminCommentsTab] Create list button clicked:', newListName);
     
-    if (!newListName.trim()) {
+    const trimmedName = newListName.trim();
+    
+    if (!trimmedName) {
       toast.error('Please enter a list name');
       return;
     }
 
     try {
       console.log('[AdminCommentsTab] Calling createList mutation...');
-      await createList.mutateAsync(newListName.trim());
+      await createList.mutateAsync(trimmedName);
       console.log('[AdminCommentsTab] List created successfully');
       setNewListName('');
-      toast.success(`List "${newListName.trim()}" created successfully!`);
+      toast.success(`List "${trimmedName}" created successfully!`);
     } catch (error: any) {
       console.error('[AdminCommentsTab] Error creating list:', error);
       toast.error(error.message || 'Failed to create list');
@@ -357,8 +359,7 @@ export default function AdminCommentsTab() {
                       value={bulkComments}
                       onChange={(e) => setBulkComments(e.target.value)}
                       placeholder="Enter comments, one per line..."
-                      rows={6}
-                      className="mt-1.5"
+                      className="mt-2 min-h-[150px]"
                       disabled={addBulk.isPending}
                     />
                   </div>
@@ -370,7 +371,7 @@ export default function AdminCommentsTab() {
                       value={singleComment}
                       onChange={(e) => setSingleComment(e.target.value)}
                       placeholder="Enter a single comment..."
-                      className="mt-1.5"
+                      className="mt-2"
                       disabled={addSingle.isPending}
                     />
                   </div>
@@ -379,10 +380,10 @@ export default function AdminCommentsTab() {
                 <Button
                   onClick={(e) => handleAddComments(e)}
                   disabled={addBulk.isPending || addSingle.isPending}
-                  className="w-full btn-gradient"
+                  className="w-full"
                   type="button"
                 >
-                  {addBulk.isPending || addSingle.isPending ? (
+                  {(addBulk.isPending || addSingle.isPending) ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Adding...
@@ -396,74 +397,87 @@ export default function AdminCommentsTab() {
                 </Button>
               </div>
 
-              {/* Comments List */}
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium text-gray-700">Comments ({selectedListComments.length})</p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => handleResetList(e)}
-                      disabled={resetList.isPending}
-                      type="button"
-                    >
-                      {resetList.isPending ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                      )}
-                      Reset All
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={(e) => handleDeleteList(e)}
-                      disabled={deleteList.isPending}
-                      type="button"
-                    >
-                      {deleteList.isPending ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 mr-2" />
-                      )}
-                      Delete List
-                    </Button>
-                  </div>
-                </div>
+              {/* List Actions */}
+              <div className="flex gap-2">
+                <Button
+                  onClick={(e) => handleResetList(e)}
+                  variant="outline"
+                  size="sm"
+                  disabled={resetList.isPending}
+                  type="button"
+                >
+                  {resetList.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                  )}
+                  Reset List
+                </Button>
+                <Button
+                  onClick={(e) => handleDeleteList(e)}
+                  variant="destructive"
+                  size="sm"
+                  disabled={deleteList.isPending}
+                  type="button"
+                >
+                  {deleteList.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-2" />
+                  )}
+                  Delete List
+                </Button>
+              </div>
 
+              {/* Comments List */}
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-base font-semibold">Comments in List</Label>
+                  <Badge variant="outline">
+                    Total: {selectedListComments.length}
+                  </Badge>
+                </div>
                 {selectedListComments.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No comments in this list</p>
+                  <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                    <Lock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p className="font-medium">No comments yet</p>
+                    <p className="text-sm">Add comments using the form above</p>
+                  </div>
                 ) : (
                   selectedListComments.map((comment, index) => (
                     <div
                       key={index}
                       className={`p-3 rounded-lg border flex items-start justify-between gap-3 ${
                         comment.used
-                          ? 'bg-gray-100 border-gray-300'
+                          ? 'bg-amber-50 border-amber-200'
                           : 'bg-white border-gray-200'
                       }`}
                     >
-                      <div className="flex-1">
-                        <p className="text-gray-800 text-sm">{comment.text}</p>
-                        {comment.used && (
-                          <Badge variant="secondary" className="mt-2 bg-amber-100 text-amber-800">
-                            <Lock className="w-3 h-3 mr-1" />
-                            Used
-                          </Badge>
-                        )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm break-words">{comment.text}</p>
+                        <Badge
+                          variant="secondary"
+                          className={`mt-2 text-xs ${
+                            comment.used
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}
+                        >
+                          {comment.used ? 'Used' : 'Available'}
+                        </Badge>
                       </div>
                       <Button
+                        onClick={(e) => handleDeleteComment(comment.text, e)}
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => handleDeleteComment(comment.text, e)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
                         disabled={deleteComment.isPending}
                         type="button"
                       >
                         {deleteComment.isPending ? (
-                          <Loader2 className="w-4 h-4 text-red-600 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                          <Trash2 className="w-4 h-4 text-red-600" />
+                          <Trash2 className="w-4 h-4" />
                         )}
                       </Button>
                     </div>
