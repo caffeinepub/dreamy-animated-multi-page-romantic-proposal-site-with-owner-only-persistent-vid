@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-button-at-xpath-html-1-body-1-div-1-div-1-div-2-main-1-div-1-div-3-div-1-div-1-div-2-button-1-in-admincommentstab-to-properly-handle-click-events-and-create-the-intended-comment-list-when-clicked",
-      "featureTitle": "Fix the button at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[1]/div[2]/button[1] in AdminCommentsTab to properly handle click events and create the intended comment list when clicked",
+      "featureId": "feature-add-lock-unlock-toggle-functionality-to-existing-comment-lists-in-the-admin-panel-when-a-list-is-locked-prevent-users-from-generating-comments-from-that-list-on-the-customer-facing-page-display-a-lock-icon-next-to-each-list-in-the-admin-panel-to-indicate-lock-status",
+      "featureTitle": "Add lock/unlock toggle functionality to existing comment lists in the admin panel. When a list is locked, prevent users from generating comments from that list on the customer-facing page. Display a lock icon next to each list in the admin panel to indicate lock status.",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx"
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -22,8 +23,29 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-select-dropdown-at-xpath-html-1-body-1-div-1-div-1-div-2-main-1-div-1-div-3-div-1-div-2-div-2-div-1-select-1-in-admincommentstab-to-properly-handle-change-events-and-trigger-the-appropriate-action-when-a-new-option-is-selected",
-      "featureTitle": "Fix the select dropdown at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/select[1] in AdminCommentsTab to properly handle change events and trigger the appropriate action when a new option is selected",
+      "featureId": "feature-add-available-vs-used-comment-tracking-for-each-list-display-badges-showing-the-count-of-available-unused-comments-and-used-comments-in-the-list-management-interface-track-when-comments-are-generated-and-mark-them-as-used",
+      "featureTitle": "Add available vs. used comment tracking for each list. Display badges showing the count of available (unused) comments and used comments in the list management interface. Track when comments are generated and mark them as 'used'.",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-refresh-button-next-to-the-delete-button-in-the-managing-interface-that-reloads-the-current-list-s-comments-and-usage-statistics-from-the-backend",
+      "featureTitle": "Add a refresh button next to the delete button in the Managing interface that reloads the current list's comments and usage statistics from the backend.",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
@@ -37,7 +59,90 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-add-x-comments-button-text-to-dynamically-show-the-count-of-comments-entered-in-the-bulk-upload-textarea-e-g-add-0-comments-when-empty-add-5-comments-when-5-lines-are-entered",
+      "featureTitle": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea (e.g., 'Add 0 Comments' when empty, 'Add 5 Comments' when 5 lines are entered).",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-the-comments-in-list-section-display-individual-comments-with-trash-icons-for-deletion-show-the-available-and-used-counts-as-separate-badges-e-g-85-available-in-green-5-used-in-orange",
+      "featureTitle": "In the 'Comments in List' section, display individual comments with trash icons for deletion. Show the available and used counts as separate badges (e.g., '85 available' in green, '5 used' in orange).",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-bulk-comment-totals-dashboard-section-that-displays-a-summary-card-for-each-comment-list-showing-the-list-name-and-total-comment-count-e-g-stasfin-90-teo-fin-personal-loan-50",
+      "featureTitle": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count (e.g., 'Stasfin: 90', 'TEO FIN - PERSONAL LOAN: 50').",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-danger-zone-section-at-the-bottom-of-the-admin-panel-with-a-red-clear-all-comment-lists-button-that-deletes-all-comment-lists-and-their-contents-after-confirmation",
+      "featureTitle": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all comment lists and their contents after confirmation.",
+      "files": [
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/hooks/useAdminComments.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
       ],
       "confidence": "high"
     }

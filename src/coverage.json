@@ -1,18 +1,45 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T03:36:40.126Z",
+  "generatedAt": "2026-02-19T08:18:42.976Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 8,
+    "implemented": 7,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the button at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[1]/div[2]/button[1] in AdminCommentsTab to properly handle click events and create the intended comment list when clicked",
+        "summary": "Add lock/unlock toggle functionality to existing comment lists in the admin panel. When a list is locked, prevent users from generating comments from that list on the customer-facing page. Display a lock icon next to each list in the admin panel to indicate lock status.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx",
+          "frontend/src/pages/CustomerViewPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add available vs. used comment tracking for each list. Display badges showing the count of available (unused) comments and used comments in the list management interface. Track when comments are generated and mark them as 'used'.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add a refresh button next to the delete button in the Managing interface that reloads the current list's comments and usage statistics from the backend.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/admin/AdminCommentsTab.tsx"
@@ -22,8 +49,8 @@
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Fix the select dropdown at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/select[1] in AdminCommentsTab to properly handle change events and trigger the appropriate action when a new option is selected",
+        "id": "REQ-4",
+        "summary": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea (e.g., 'Add 0 Comments' when empty, 'Add 5 Comments' when 5 lines are entered).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/admin/AdminCommentsTab.tsx"
@@ -31,15 +58,68 @@
         "matchedFiles": [
           "frontend/src/components/admin/AdminCommentsTab.tsx"
         ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "In the 'Comments in List' section, display individual comments with trash icons for deletion. Show the available and used counts as separate badges (e.g., '85 available' in green, '5 used' in orange).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count (e.g., 'Stasfin: 90', 'TEO FIN - PERSONAL LOAN: 50').",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all comment lists and their contents after confirmation.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAdminComments.ts",
+          "frontend/src/components/admin/AdminCommentsTab.tsx"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Ensure all backend operations properly persist data so that created lists, added comments, lock states, and usage tracking survive canister upgrades and page refreshes.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
     "frontend/src/components/admin/AdminCommentsTab.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useAdminComments.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

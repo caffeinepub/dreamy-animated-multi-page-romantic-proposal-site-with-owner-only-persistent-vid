@@ -1,75 +1,43 @@
-import Map "mo:core/Map";
 import List "mo:core/List";
+import Map "mo:core/Map";
 import Text "mo:core/Text";
-import Principal "mo:core/Principal";
-import Storage "blob-storage/Storage";
 
 module {
+  type OldComment = {
+    text : Text;
+    used : Bool;
+  };
+
+  type OldCommentList = {
+    name : Text;
+    comments : List.List<OldComment>;
+  };
+
   type OldActor = {
-    ratingImages : List.List<{
-      uploaderName : Text;
-      uploadTime : Int;
-      imageBlob : Storage.ExternalBlob;
-    }>;
-    bulkGeneratorKey : ?{
-      key : Text;
-    };
-    commentLists : Map.Map<Text, {
-      name : Text;
-      comments : List.List<{
-        text : Text;
-        used : Bool;
-      }>;
-    }>;
-    chatMessages : List.List<{
-      sender : Text;
-      timestamp : Int;
-      message : Text;
-    }>;
-    userProfiles : Map.Map<Principal, {
-      name : Text;
-    }>;
-    liveListApps : Map.Map<Text, {
-      appName : Text;
-      usernames : List.List<Text>;
-    }>;
+    commentLists : Map.Map<Text, OldCommentList>;
+  };
+
+  type NewComment = {
+    text : Text;
+    used : Bool;
+  };
+
+  type NewCommentList = {
+    name : Text;
+    comments : List.List<NewComment>;
+    locked : Bool;
   };
 
   type NewActor = {
-    ratingImages : List.List<{
-      uploaderName : Text;
-      uploadTime : Int;
-      imageBlob : Storage.ExternalBlob;
-    }>;
-    bulkGeneratorKey : ?{
-      key : Text;
-    };
-    commentLists : Map.Map<Text, {
-      name : Text;
-      comments : List.List<{
-        text : Text;
-        used : Bool;
-      }>;
-    }>;
-    chatMessages : List.List<{
-      sender : Text;
-      timestamp : Int;
-      message : Text;
-    }>;
-    userProfiles : Map.Map<Principal, {
-      name : Text;
-    }>;
-    liveListApps : Map.Map<Text, {
-      appName : Text;
-      usernames : List.List<Text>;
-    }>;
-    singleUseTracker : Map.Map<Text, ()>;
+    commentLists : Map.Map<Text, NewCommentList>;
   };
 
   public func run(old : OldActor) : NewActor {
-    {
-      old with
-      singleUseTracker = Map.empty<Text, ()>()
-    };
+    let newCommentLists = old.commentLists.map<Text, OldCommentList, NewCommentList>(
+      func(_name, oldList) {
+        { oldList with locked = false };
+      }
+    );
+    { commentLists = newCommentLists };
   };
 };

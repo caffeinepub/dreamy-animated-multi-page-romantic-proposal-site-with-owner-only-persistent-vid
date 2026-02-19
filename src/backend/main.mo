@@ -9,9 +9,9 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import Array "mo:core/Array";
+import Migration "migration";
 
-import Nat "mo:core/Nat";
-
+(with migration = Migration.run)
 actor {
   type Comment = {
     text : Text;
@@ -21,12 +21,14 @@ actor {
   type CommentList = {
     name : Text;
     comments : List.List<Comment>;
+    locked : Bool;
   };
 
   type CommentListSummary = {
     name : Text;
     totalComments : Nat;
     usedComments : Nat;
+    locked : Bool;
   };
 
   type BulkCommentTotals = {
@@ -49,8 +51,10 @@ actor {
   public query ({ caller }) func getAvailableCommentLists() : async [Text] {
     // No authorization check needed - available to all including guests
     var result = List.empty<Text>();
-    for ((name, _list) in commentLists.entries()) {
-      result.add(name);
+    for ((name, list) in commentLists.entries()) {
+      if (not list.locked) {
+        result.add(name);
+      };
     };
     result.toArray();
   };
@@ -70,6 +74,7 @@ actor {
           name = list.name;
           totalComments = total;
           usedComments = used;
+          locked = list.locked;
         };
       };
     };
@@ -88,6 +93,9 @@ actor {
         Runtime.trap("List not found");
       };
       case (?list) {
+        if (list.locked) {
+          Runtime.trap("This list is currently locked and cannot be used");
+        };
         for (comment in list.comments.values()) {
           if (not comment.used) {
             let updatedComment : Comment = { comment with used = true };
@@ -201,6 +209,7 @@ actor {
     let newList = {
       name;
       comments = List.empty<Comment>();
+      locked = false;
     };
     commentLists.add(name, newList);
   };
@@ -317,6 +326,56 @@ actor {
         ?list.comments.toArray();
       };
     };
+  };
+
+  // LOCK/UNLOCK FUNCTIONALITY
+  public shared ({ caller }) func toggleLockList(listName : Text) : async Bool {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can lock/unlock lists");
+    };
+
+    switch (commentLists.get(listName)) {
+      case (null) {
+        Runtime.trap("List not found");
+      };
+      case (?existingList) {
+        let locked = not existingList.locked;
+        commentLists.add(listName, { existingList with locked });
+        locked;
+      };
+    };
+  };
+
+  public query ({ caller }) func getListsWithLockStatus() : async [CommentListSummary] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can view list statuses");
+    };
+
+    let summaries = List.empty<CommentListSummary>();
+    for ((_, list) in commentLists.entries()) {
+      var total = 0;
+      var used = 0;
+      for (comment in list.comments.values()) {
+        total += 1;
+        if (comment.used) { used += 1 };
+      };
+      summaries.add({
+        name = list.name;
+        totalComments = total;
+        usedComments = used;
+        locked = list.locked;
+      });
+    };
+    summaries.toArray();
+  };
+
+  // DANGER ZONE: CLEAR ALL LISTS
+  public shared ({ caller }) func clearAllCommentLists() : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
+      Runtime.trap("Unauthorized: Only admins can clear all lists");
+    };
+
+    commentLists.clear();
   };
 
   // BULK GENERATOR ACCESS KEY MANAGEMENT

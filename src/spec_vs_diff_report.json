@@ -1,14 +1,27 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T03:36:40.123Z",
-  "summary": "The diff shows implementation of button click handlers and select dropdown change handlers in AdminCommentsTab component. REQ-1 (button functionality) and REQ-2 (dropdown functionality) both appear to be implemented with appropriate event handlers, loading states, error handling, and user feedback mechanisms.",
-  "missing_requirements": [],
+  "generatedAt": "2026-02-19T08:18:42.973Z",
+  "summary": "The diff implements most requirements with strong evidence of lock/unlock functionality, usage tracking, refresh button, dynamic button text, individual comment deletion with badges, bulk totals dashboard, and danger zone. However, evidence for REQ-8 (persistence across canister upgrades) is incomplete due to truncation, and some acceptance criteria details (specific badge colors, blue badge styling) cannot be fully verified.",
+  "missing_requirements": [
+    {
+      "id": "REQ-8",
+      "requirement": "Ensure all backend operations properly persist data so that created lists, added comments, lock states, and usage tracking survive canister upgrades and page refreshes",
+      "reason": "The backend/main.mo file is truncated, preventing verification of stable storage declarations and upgrade hooks. Migration.mo exists but only shows migration logic, not the actual persistence implementation in the main actor. Cannot confirm data survives canister upgrades without seeing the stable variable declarations and system upgrade/preupgrade hooks.",
+      "evidence": [
+        "backend/main.mo",
+        "backend/migration.mo"
+      ]
+    }
+  ],
   "hallucinated_features": [],
-  "confidence": 0.85,
+  "confidence": 0.75,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/components/admin/AdminCommentsTab.tsx",
+    "frontend/src/hooks/useAdminComments.ts",
     "project_state.json"
   ]
 }

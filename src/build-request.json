@@ -1,63 +1,169 @@
 {
   "kind": "build_request",
-  "title": "Fix non-functional button and select dropdown in AdminCommentsTab",
+  "title": "Add admin panel comment list management with lock controls and usage tracking",
+  "projectName": "Comment Manager",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the button at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[1]/div[2]/button[1] in AdminCommentsTab to properly handle click events and create the intended comment list when clicked",
-      "target": "frontend",
+      "text": "Add lock/unlock toggle functionality to existing comment lists in the admin panel. When a list is locked, prevent users from generating comments from that list on the customer-facing page. Display a lock icon next to each list in the admin panel to indicate lock status.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-user-lock-restriction"
         ],
         "quotes": [
-          "Create something",
-          "nothing happen"
+          "it restrict user to take comments if it lock by admin"
         ]
       },
       "acceptanceCriteria": [
-        "Button responds to click events",
-        "Clicking the button triggers comment list creation",
-        "Loading state is shown during creation",
-        "Success feedback is displayed after creation",
-        "New list appears in the dropdown after creation",
-        "Error messages are shown if creation fails"
+        "Each comment list in the admin panel displays a clickable lock icon",
+        "Clicking the lock icon toggles the list between locked and unlocked states",
+        "Locked lists are visually indicated with a locked padlock icon",
+        "On the customer view page, locked lists cannot be selected for comment generation",
+        "Lock state persists across page refreshes"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the select dropdown at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/select[1] in AdminCommentsTab to properly handle change events and trigger the appropriate action when a new option is selected",
-      "target": "frontend",
+      "text": "Add available vs. used comment tracking for each list. Display badges showing the count of available (unused) comments and used comments in the list management interface. Track when comments are generated and mark them as 'used'.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-user-tracking-confirmation"
         ],
         "quotes": [
-          "Action button",
-          "nothing happen"
+          "yes it is tracking only",
+          "85 available / 5 used"
         ]
       },
       "acceptanceCriteria": [
-        "Select dropdown responds to change events",
-        "Changing selection triggers the appropriate action",
-        "Selected value is properly stored in component state",
-        "Dependent UI elements update based on selection",
-        "Error handling is in place for failed actions"
+        "Display '85 available' and '5 used' style badges in the Managing interface",
+        "Available count shows comments that have not been generated yet",
+        "Used count shows comments that have been generated at least once",
+        "Counts update in real-time when comments are added or generated",
+        "Total in 'Comments in List (90)' equals available + used"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a refresh button next to the delete button in the Managing interface that reloads the current list's comments and usage statistics from the backend.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-screenshot-upload"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Refresh button appears next to the red delete button in the Managing section",
+        "Clicking refresh fetches the latest comment data from the backend",
+        "Available/used counts update after refresh",
+        "Comment list below updates to show current comments"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea (e.g., 'Add 0 Comments' when empty, 'Add 5 Comments' when 5 lines are entered).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-screenshot-upload"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Button text displays 'Add 0 Comments' when textarea is empty",
+        "Button text updates to 'Add X Comments' where X is the line count",
+        "Count updates in real-time as user types in the textarea",
+        "Each line break counts as one comment"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "In the 'Comments in List' section, display individual comments with trash icons for deletion. Show the available and used counts as separate badges (e.g., '85 available' in green, '5 used' in orange).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-screenshot-upload"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each comment displays in a card with a trash icon on the right",
+        "Clicking the trash icon deletes that specific comment",
+        "Available count badge appears in green styling",
+        "Used count badge appears in orange styling",
+        "Badges appear below the 'Comments in List (90)' heading"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count (e.g., 'Stasfin: 90', 'TEO FIN - PERSONAL LOAN: 50').",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-screenshot-upload"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Bulk Comment Totals section appears below the Existing Lists section",
+        "Each list displays in a card with the list name and total count",
+        "Total count appears in a blue bordered badge on the right",
+        "Section includes an icon and descriptive subtitle",
+        "Dashboard updates when lists are created or comments are added"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all comment lists and their contents after confirmation.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-screenshot-upload"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Danger Zone section appears at the bottom with red heading",
+        "Section includes warning text about irreversible actions",
+        "Red 'Clear All Comment Lists' button with trash icon",
+        "Clicking the button shows a confirmation dialog",
+        "Confirming deletes all lists and comments from the backend",
+        "UI updates to reflect empty state after deletion"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Ensure all backend operations properly persist data so that created lists, added comments, lock states, and usage tracking survive canister upgrades and page refreshes.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-user-data-persistence-requirement"
+        ],
+        "quotes": [
+          "Make sure all functions work fine after entering data"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Comment lists persist across page refreshes",
+        "Lock states persist across page refreshes",
+        "Available/used tracking persists across page refreshes",
+        "All data survives canister upgrades",
+        "No data loss when adding or deleting comments"
       ]
     }
   ],
   "constraints": [
-    "Only modify the AdminCommentsTab component and related hooks",
-    "Do not change the backend schema or main.mo actor",
-    "Preserve existing error handling patterns",
-    "Maintain compatibility with useAdminComments hook"
+    "Do not change the existing AdminCommentsTab component structure",
+    "Maintain compatibility with the existing useAdminComments hook",
+    "Keep the existing Motoko backend single-actor architecture",
+    "Do not modify Internet Identity authentication logic",
+    "Preserve the existing tab-based admin panel layout"
   ],
   "nonGoals": [
-    "Modifying other admin tabs",
-    "Changing the overall admin panel layout",
-    "Refactoring unrelated components",
-    "Adding new features beyond fixing the specified elements"
+    "Real-time WebSocket updates between admin and customer views",
+    "Multi-user concurrent editing of comment lists",
+    "Undo/redo functionality for comment operations",
+    "Import/export of comment lists to external formats",
+    "Advanced search or filtering of comments within lists",
+    "Role-based access control beyond the existing admin token system"
   ],
   "imageRequirements": {
     "required": [],

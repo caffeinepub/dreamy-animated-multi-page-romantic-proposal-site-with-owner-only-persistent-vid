@@ -59,6 +59,7 @@ export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const Comment = IDL.Record({ 'text' : IDL.Text, 'used' : IDL.Bool });
 export const CommentListSummary = IDL.Record({
   'name' : IDL.Text,
+  'locked' : IDL.Bool,
   'usedComments' : IDL.Nat,
   'totalComments' : IDL.Nat,
 });
@@ -102,6 +103,7 @@ export const idlService = IDL.Service({
       [LiveListCheckSummary],
       ['query'],
     ),
+  'clearAllCommentLists' : IDL.Func([], [], []),
   'createCommentList' : IDL.Func([IDL.Text], [], []),
   'deleteComment' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'deleteList' : IDL.Func([IDL.Text], [], []),
@@ -131,6 +133,11 @@ export const idlService = IDL.Service({
       [IDL.Opt(CommentListSummary)],
       ['query'],
     ),
+  'getListsWithLockStatus' : IDL.Func(
+      [],
+      [IDL.Vec(CommentListSummary)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -144,6 +151,7 @@ export const idlService = IDL.Service({
   'resetUsernamesForApp' : IDL.Func([IDL.Text], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'setBulkGeneratorKey' : IDL.Func([IDL.Text], [], []),
+  'toggleLockList' : IDL.Func([IDL.Text], [IDL.Bool], []),
   'uploadRatingImage' : IDL.Func([IDL.Text, ExternalBlob], [], []),
 });
 
@@ -201,6 +209,7 @@ export const idlFactory = ({ IDL }) => {
   const Comment = IDL.Record({ 'text' : IDL.Text, 'used' : IDL.Bool });
   const CommentListSummary = IDL.Record({
     'name' : IDL.Text,
+    'locked' : IDL.Bool,
     'usedComments' : IDL.Nat,
     'totalComments' : IDL.Nat,
   });
@@ -244,6 +253,7 @@ export const idlFactory = ({ IDL }) => {
         [LiveListCheckSummary],
         ['query'],
       ),
+    'clearAllCommentLists' : IDL.Func([], [], []),
     'createCommentList' : IDL.Func([IDL.Text], [], []),
     'deleteComment' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'deleteList' : IDL.Func([IDL.Text], [], []),
@@ -273,6 +283,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(CommentListSummary)],
         ['query'],
       ),
+    'getListsWithLockStatus' : IDL.Func(
+        [],
+        [IDL.Vec(CommentListSummary)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -286,6 +301,7 @@ export const idlFactory = ({ IDL }) => {
     'resetUsernamesForApp' : IDL.Func([IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'setBulkGeneratorKey' : IDL.Func([IDL.Text], [], []),
+    'toggleLockList' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'uploadRatingImage' : IDL.Func([IDL.Text, ExternalBlob], [], []),
   });
 };

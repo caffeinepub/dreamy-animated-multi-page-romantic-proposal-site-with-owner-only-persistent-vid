@@ -40,6 +40,7 @@ export interface BulkCommentTotals {
 }
 export interface CommentListSummary {
     name: string;
+    locked: boolean;
     usedComments: bigint;
     totalComments: bigint;
 }
@@ -69,6 +70,7 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     bulkUploadComments(listName: string, comments: Array<string>): Promise<void>;
     checkLiveList(usernamesToCheck: Array<string>): Promise<LiveListCheckSummary>;
+    clearAllCommentLists(): Promise<void>;
     createCommentList(name: string): Promise<void>;
     deleteComment(listName: string, comment: string): Promise<void>;
     deleteList(listName: string): Promise<void>;
@@ -86,6 +88,7 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getCommentList(listName: string): Promise<Array<Comment> | null>;
     getCommentListSummary(listName: string): Promise<CommentListSummary | null>;
+    getListsWithLockStatus(): Promise<Array<CommentListSummary>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     hasBulkGeneratorKey(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
@@ -95,5 +98,6 @@ export interface backendInterface {
     resetUsernamesForApp(appName: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setBulkGeneratorKey(newKey: string): Promise<void>;
+    toggleLockList(listName: string): Promise<boolean>;
     uploadRatingImage(uploaderName: string, image: ExternalBlob): Promise<void>;
 }

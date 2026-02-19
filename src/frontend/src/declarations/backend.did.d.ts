@@ -29,6 +29,7 @@ export interface ChatMessage {
 export interface Comment { 'text' : string, 'used' : boolean }
 export interface CommentListSummary {
   'name' : string,
+  'locked' : boolean,
   'usedComments' : bigint,
   'totalComments' : bigint,
 }
@@ -86,6 +87,7 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'bulkUploadComments' : ActorMethod<[string, Array<string>], undefined>,
   'checkLiveList' : ActorMethod<[Array<string>], LiveListCheckSummary>,
+  'clearAllCommentLists' : ActorMethod<[], undefined>,
   'createCommentList' : ActorMethod<[string], undefined>,
   'deleteComment' : ActorMethod<[string, string], undefined>,
   'deleteList' : ActorMethod<[string], undefined>,
@@ -106,6 +108,7 @@ export interface _SERVICE {
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCommentList' : ActorMethod<[string], [] | [Array<Comment>]>,
   'getCommentListSummary' : ActorMethod<[string], [] | [CommentListSummary]>,
+  'getListsWithLockStatus' : ActorMethod<[], Array<CommentListSummary>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'hasBulkGeneratorKey' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -115,6 +118,7 @@ export interface _SERVICE {
   'resetUsernamesForApp' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'setBulkGeneratorKey' : ActorMethod<[string], undefined>,
+  'toggleLockList' : ActorMethod<[string], boolean>,
   'uploadRatingImage' : ActorMethod<[string, ExternalBlob], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

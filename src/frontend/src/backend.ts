@@ -122,6 +122,7 @@ export interface _CaffeineStorageCreateCertificateResult {
 }
 export interface CommentListSummary {
     name: string;
+    locked: boolean;
     usedComments: bigint;
     totalComments: bigint;
 }
@@ -162,6 +163,7 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     bulkUploadComments(listName: string, comments: Array<string>): Promise<void>;
     checkLiveList(usernamesToCheck: Array<string>): Promise<LiveListCheckSummary>;
+    clearAllCommentLists(): Promise<void>;
     createCommentList(name: string): Promise<void>;
     deleteComment(listName: string, comment: string): Promise<void>;
     deleteList(listName: string): Promise<void>;
@@ -179,6 +181,7 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getCommentList(listName: string): Promise<Array<Comment> | null>;
     getCommentListSummary(listName: string): Promise<CommentListSummary | null>;
+    getListsWithLockStatus(): Promise<Array<CommentListSummary>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     hasBulkGeneratorKey(): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
@@ -188,6 +191,7 @@ export interface backendInterface {
     resetUsernamesForApp(appName: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     setBulkGeneratorKey(newKey: string): Promise<void>;
+    toggleLockList(listName: string): Promise<boolean>;
     uploadRatingImage(uploaderName: string, image: ExternalBlob): Promise<void>;
 }
 import type { Comment as _Comment, CommentListSummary as _CommentListSummary, ExternalBlob as _ExternalBlob, RatingImage as _RatingImage, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
@@ -386,6 +390,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.checkLiveList(arg0);
+            return result;
+        }
+    }
+    async clearAllCommentLists(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.clearAllCommentLists();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.clearAllCommentLists();
             return result;
         }
     }
@@ -627,6 +645,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n19(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getListsWithLockStatus(): Promise<Array<CommentListSummary>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getListsWithLockStatus();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getListsWithLockStatus();
+            return result;
+        }
+    }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -750,6 +782,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.setBulkGeneratorKey(arg0);
+            return result;
+        }
+    }
+    async toggleLockList(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.toggleLockList(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.toggleLockList(arg0);
             return result;
         }
     }
