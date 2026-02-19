@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-frontend-async-handling-in-useadmincomments-ts-and-admincommentstab-tsx-to-properly-await-the-backend-response-when-creating-a-new-comment-list",
-      "featureTitle": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
+      "featureId": "feature-fix-the-button-at-xpath-html-1-body-1-div-1-div-1-div-2-main-1-div-1-div-3-div-1-div-1-div-2-button-1-in-admincommentstab-to-properly-handle-click-events-and-create-the-intended-comment-list-when-clicked",
+      "featureTitle": "Fix the button at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[1]/div[2]/button[1] in AdminCommentsTab to properly handle click events and create the intended comment list when clicked",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,16 +17,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-7"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-manage-existing-lists-dropdown-to-automatically-refresh-and-display-newly-created-comment-lists-after-successful-creation",
-      "featureTitle": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
+      "featureId": "feature-fix-the-select-dropdown-at-xpath-html-1-body-1-div-1-div-1-div-2-main-1-div-1-div-3-div-1-div-2-div-2-div-1-select-1-in-admincommentstab-to-properly-handle-change-events-and-trigger-the-appropriate-action-when-a-new-option-is-selected",
+      "featureTitle": "Fix the select dropdown at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/select[1] in AdminCommentsTab to properly handle change events and trigger the appropriate action when a new option is selected",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -39,28 +37,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-8"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-proper-error-handling-and-user-feedback-for-comment-list-creation-failures",
-      "featureTitle": "Add proper error handling and user feedback for comment list creation failures",
-      "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
+        "REQ-2"
       ],
       "confidence": "high"
     }

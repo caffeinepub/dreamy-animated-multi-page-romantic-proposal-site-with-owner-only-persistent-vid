@@ -1,72 +1,30 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Comment list management system with backend persistence - fixing stuck list creation issue",
-  "architectural_notes": [
-    "Comment lists stored in Motoko backend canister for persistence across all users",
-    "Frontend async handling needs correction for proper list creation completion",
-    "Lists accessible to all website users without authentication"
-  ],
-  "known_issues": [
-    "List creation UI gets stuck in 'Creating List...' loading state and never completes",
-    "New lists do not appear in 'Manage Existing Lists' dropdown after creation attempt"
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-frontend-async-handling-in-useadmincomments-ts-and-admincommentstab-tsx-to-properly-await-the-backend-response-when-creating-a-new-comment-list",
-      "title": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
+      "id": "feature-fix-the-button-at-xpath-html-1-body-1-div-1-div-1-div-2-main-1-div-1-div-3-div-1-div-1-div-2-button-1-in-admincommentstab-to-properly-handle-click-events-and-create-the-intended-comment-list-when-clicked",
+      "title": "Fix the button at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[1]/div[2]/button[1] in AdminCommentsTab to properly handle click events and create the intended comment list when clicked",
       "reqIds": [
-        "REQ-7"
+        "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-manage-existing-lists-dropdown-to-automatically-refresh-and-display-newly-created-comment-lists-after-successful-creation",
-      "title": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
+      "id": "feature-fix-the-select-dropdown-at-xpath-html-1-body-1-div-1-div-1-div-2-main-1-div-1-div-3-div-1-div-2-div-2-div-1-select-1-in-admincommentstab-to-properly-handle-change-events-and-trigger-the-appropriate-action-when-a-new-option-is-selected",
+      "title": "Fix the select dropdown at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/select[1] in AdminCommentsTab to properly handle change events and trigger the appropriate action when a new option is selected",
       "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-proper-error-handling-and-user-feedback-for-comment-list-creation-failures",
-      "title": "Add proper error handling and user feedback for comment list creation failures",
-      "reqIds": [
-        "REQ-9"
+        "REQ-2"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Fix comment list creation stuck in loading state",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Implement backend Motoko canister methods for creating and retrieving comment lists",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Update dropdown to show newly created lists under 'Manage Existing Lists'",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Fix the backend createCommentList method in backend/main.mo to properly persist new comment lists and return success confirmation",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "status": "pending"
-    }
-  ],
-  "projectName": "App Review",
+  "new_feature_requests": [],
+  "projectName": "Fix non-functional button and select dropdown in AdminCommentsTab",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the comment list creation feature so users can successfully create new lists without getting stuck in a loading state.
+**Goal:** Fix non-functional button and select dropdown in the AdminCommentsTab component.
 
 **Planned changes:**
-- Fix backend createCommentList method to properly persist new comment lists in stable storage and return success confirmation
-- Fix frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await backend response
-- Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created lists after successful creation
-- Add proper error handling and user feedback for list creation failures
+- Fix the "Create something" button to properly handle click events and create comment lists
+- Fix the select dropdown to properly handle change events and trigger appropriate actions
+- Add proper loading states and error handling for both elements
+- Ensure new lists appear in the dropdown after creation
+- Display success and error feedback messages
 
-**User-visible outcome:** Users can successfully create new comment lists (like "Story tv"), see the loading state resolve, receive success/error feedback, and immediately see their new list appear in the "Select List" dropdown for management.
+**User-visible outcome:** Admin users can successfully create new comment lists using the button and select different options from the dropdown to trigger actions, with proper feedback and error handling throughout the process.

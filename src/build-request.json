@@ -1,101 +1,63 @@
 {
   "kind": "build_request",
-  "title": "Fix comment list creation stuck in loading state",
-  "projectName": "App Review",
+  "title": "Fix non-functional button and select dropdown in AdminCommentsTab",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-6",
-      "text": "Fix the backend createCommentList method in backend/main.mo to properly persist new comment lists and return success confirmation",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-13",
-          "msg-15"
-        ],
-        "quotes": [
-          "List creation gets stuck in 'Creating List...' loading state and never completes",
-          "Lists should be stored in the Motoko backend canister so all users can access them"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The createCommentList method successfully stores new lists in stable storage",
-        "The method returns a proper success response that the frontend can handle",
-        "All users can access newly created lists from the backend"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
+      "id": "REQ-1",
+      "text": "Fix the button at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[1]/div[2]/button[1] in AdminCommentsTab to properly handle click events and create the intended comment list when clicked",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-13",
-          "msg-15"
+          "msg-last"
         ],
         "quotes": [
-          "The 'Creating List...' button is stuck in loading state when you try to create the 'Story tv' comment list",
-          "Fix the frontend async handling so the creation actually completes and the UI updates properly"
+          "Create something",
+          "nothing happen"
         ]
       },
       "acceptanceCriteria": [
-        "The loading state ('Creating List...') resolves after backend responds",
-        "Success or error feedback is displayed to the user",
-        "The input field is cleared after successful creation"
+        "Button responds to click events",
+        "Clicking the button triggers comment list creation",
+        "Loading state is shown during creation",
+        "Success feedback is displayed after creation",
+        "New list appears in the dropdown after creation",
+        "Error messages are shown if creation fails"
       ]
     },
     {
-      "id": "REQ-8",
-      "text": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
+      "id": "REQ-2",
+      "text": "Fix the select dropdown at XPath /html[1]/body[1]/div[1]/div[1]/div[2]/main[1]/div[1]/div[3]/div[1]/div[2]/div[2]/div[1]/select[1] in AdminCommentsTab to properly handle change events and trigger the appropriate action when a new option is selected",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-11",
-          "msg-13"
+          "msg-last"
         ],
         "quotes": [
-          "After successful creation, the new list should appear in the dropdown under 'Manage Existing Lists'",
-          "yes appear in the drop-down"
+          "Action button",
+          "nothing happen"
         ]
       },
       "acceptanceCriteria": [
-        "Newly created lists immediately appear in the 'Select List' dropdown",
-        "The dropdown updates from 'No lists available - create one above' to show the new list",
-        "The dropdown correctly populates with the list name that was just created (e.g., 'Story tv')"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "text": "Add proper error handling and user feedback for comment list creation failures",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-13",
-          "msg-15"
-        ],
-        "quotes": [
-          "Add proper error handling and user feedback",
-          "Proper feedback if something goes wrong"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Display clear error messages if list creation fails",
-        "The loading state exits properly even on error",
-        "User can retry creation after an error"
+        "Select dropdown responds to change events",
+        "Changing selection triggers the appropriate action",
+        "Selected value is properly stored in component state",
+        "Dependent UI elements update based on selection",
+        "Error handling is in place for failed actions"
       ]
     }
   ],
   "constraints": [
-    "Keep all Motoko logic in the single main actor file (backend/main.mo)",
-    "Do not modify immutable frontend paths: useInternetIdentity.ts, useInternetIdentity.tsx, useActor.ts, main.tsx, components/ui/*",
-    "Maintain the existing single-actor backend architecture",
-    "Preserve the current React Query pattern for cache invalidation"
+    "Only modify the AdminCommentsTab component and related hooks",
+    "Do not change the backend schema or main.mo actor",
+    "Preserve existing error handling patterns",
+    "Maintain compatibility with useAdminComments hook"
   ],
   "nonGoals": [
-    "Adding authentication requirements for list creation",
-    "Implementing list editing or renaming features",
-    "Adding permissions or access control to comment lists",
-    "Changing the UI design or styling of the list creation interface"
+    "Modifying other admin tabs",
+    "Changing the overall admin panel layout",
+    "Refactoring unrelated components",
+    "Adding new features beyond fixing the specified elements"
   ],
   "imageRequirements": {
     "required": [],

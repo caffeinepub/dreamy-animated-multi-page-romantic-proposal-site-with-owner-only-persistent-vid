@@ -36,12 +36,7 @@ export default function AdminCommentsTab() {
   const resetList = useResetList();
   const deleteList = useDeleteList();
 
-  const handleCreateList = useCallback(async (e?: React.MouseEvent | React.FormEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleCreateList = useCallback(async () => {
     console.log('[AdminCommentsTab] Create list button clicked:', newListName);
     
     const trimmedName = newListName.trim();
@@ -63,12 +58,13 @@ export default function AdminCommentsTab() {
     }
   }, [newListName, createList]);
 
-  const handleAddComments = useCallback(async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleSelectListChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    console.log('[AdminCommentsTab] List selection changed:', value);
+    setSelectedList(value);
+  }, []);
+
+  const handleAddComments = useCallback(async () => {
     console.log('[AdminCommentsTab] Add comments button clicked:', { selectedList, addMode });
     
     if (!selectedList) {
@@ -112,12 +108,7 @@ export default function AdminCommentsTab() {
     }
   }, [selectedList, addMode, bulkComments, singleComment, addBulk, addSingle]);
 
-  const handleDeleteComment = useCallback(async (comment: string, e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleDeleteComment = useCallback(async (comment: string) => {
     console.log('[AdminCommentsTab] Delete comment button clicked:', comment);
     
     if (!confirm('Are you sure you want to delete this comment?')) {
@@ -133,12 +124,7 @@ export default function AdminCommentsTab() {
     }
   }, [selectedList, deleteComment]);
 
-  const handleResetList = useCallback(async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleResetList = useCallback(async () => {
     console.log('[AdminCommentsTab] Reset list button clicked:', selectedList);
     
     if (!selectedList) {
@@ -159,12 +145,7 @@ export default function AdminCommentsTab() {
     }
   }, [selectedList, resetList]);
 
-  const handleDeleteList = useCallback(async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleDeleteList = useCallback(async () => {
     console.log('[AdminCommentsTab] Delete list button clicked:', selectedList);
     
     if (!selectedList) {
@@ -250,14 +231,15 @@ export default function AdminCommentsTab() {
               className="mt-2 text-base h-12 border-2 focus:border-blue-500"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleCreateList(e);
+                  e.preventDefault();
+                  handleCreateList();
                 }
               }}
               disabled={createList.isPending}
             />
           </div>
           <Button
-            onClick={(e) => handleCreateList(e)}
+            onClick={handleCreateList}
             disabled={createList.isPending || !newListName.trim()}
             className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 shadow-md hover:shadow-lg transition-all"
             type="button"
@@ -299,7 +281,7 @@ export default function AdminCommentsTab() {
             <select
               id="select-list"
               value={selectedList}
-              onChange={(e) => setSelectedList(e.target.value)}
+              onChange={handleSelectListChange}
               className="w-full mt-2 px-4 py-3 text-base border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
               disabled={listsLoading}
             >
@@ -378,7 +360,7 @@ export default function AdminCommentsTab() {
                 )}
 
                 <Button
-                  onClick={(e) => handleAddComments(e)}
+                  onClick={handleAddComments}
                   disabled={addBulk.isPending || addSingle.isPending}
                   className="w-full"
                   type="button"
@@ -400,7 +382,7 @@ export default function AdminCommentsTab() {
               {/* List Actions */}
               <div className="flex gap-2">
                 <Button
-                  onClick={(e) => handleResetList(e)}
+                  onClick={handleResetList}
                   variant="outline"
                   size="sm"
                   disabled={resetList.isPending}
@@ -414,7 +396,7 @@ export default function AdminCommentsTab() {
                   Reset List
                 </Button>
                 <Button
-                  onClick={(e) => handleDeleteList(e)}
+                  onClick={handleDeleteList}
                   variant="destructive"
                   size="sm"
                   disabled={deleteList.isPending}
@@ -467,18 +449,13 @@ export default function AdminCommentsTab() {
                         </Badge>
                       </div>
                       <Button
-                        onClick={(e) => handleDeleteComment(comment.text, e)}
+                        onClick={() => handleDeleteComment(comment.text)}
                         variant="ghost"
                         size="sm"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
                         disabled={deleteComment.isPending}
                         type="button"
                       >
-                        {deleteComment.isPending ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
+                        <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
                     </div>
                   ))

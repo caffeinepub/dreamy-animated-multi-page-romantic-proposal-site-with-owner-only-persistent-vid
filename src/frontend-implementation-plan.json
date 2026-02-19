@@ -1,68 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix comment list creation stuck in loading state",
+  "title": "Fix non-functional button and select dropdown in AdminCommentsTab",
   "requirements": [
     {
-      "id": "REQ-7",
-      "summary": "Fix the frontend async handling in useAdminComments.ts and AdminCommentsTab.tsx to properly await the backend response when creating a new comment list",
+      "id": "REQ-1",
+      "summary": "Fix the 'Create Comment List' button to properly handle click events and create comment lists",
       "acceptanceCriteria": [
-        "The loading state ('Creating List...') resolves after backend responds",
-        "Success or error feedback is displayed to the user",
-        "The input field is cleared after successful creation"
+        "Button responds to click events",
+        "Clicking the button triggers comment list creation",
+        "Loading state is shown during creation",
+        "Success feedback is displayed after creation",
+        "New list appears in the dropdown after creation",
+        "Error messages are shown if creation fails"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Fix the createCommentList mutation to properly await the backend createCommentList method response and handle the Promise resolution correctly. Ensure the mutation's onSuccess callback triggers query invalidation for ['availableCommentLists'] to refresh the dropdown. Add proper error handling in onError to capture and surface backend errors to the UI."
-        },
-        {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Update the handleCreateList function to properly await the createCommentList mutation and handle the async response. Clear the newListName input field in the onSuccess callback after successful creation. Add toast notifications or inline error messages to display success/failure feedback to the user. Ensure the loading state (isCreating) is properly bound to the mutation's isPending state."
+          "description": "Fix the create comment list button click handler by ensuring proper event binding and state management. Connect the button's onClick handler to the createCommentList mutation from useAdminComments hook. Add loading state display during creation, success feedback after creation completes, and error handling for failed operations. Ensure the newly created list appears in the available lists dropdown after successful creation through proper query invalidation."
         }
       ]
     },
     {
-      "id": "REQ-8",
-      "summary": "Update the 'Manage Existing Lists' dropdown to automatically refresh and display newly created comment lists after successful creation",
+      "id": "REQ-2",
+      "summary": "Fix the action select dropdown to properly handle change events and trigger appropriate actions",
       "acceptanceCriteria": [
-        "Newly created lists immediately appear in the 'Select List' dropdown",
-        "The dropdown updates from 'No lists available - create one above' to show the new list",
-        "The dropdown correctly populates with the list name that was just created (e.g., 'Story tv')"
+        "Select dropdown responds to change events",
+        "Changing selection triggers the appropriate action",
+        "Selected value is properly stored in component state",
+        "Dependent UI elements update based on selection",
+        "Error handling is in place for failed actions"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Ensure the createCommentList mutation's onSuccess callback calls queryClient.invalidateQueries({ queryKey: ['availableCommentLists'] }) to trigger an immediate refetch of the comment lists. Verify that the useGetAvailableCommentLists query has proper cache invalidation and refetch settings to respond to the invalidation."
-        },
-        {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Verify that the Select List dropdown component is bound to the availableCommentLists data from useGetAvailableCommentLists. Ensure the dropdown re-renders automatically when the query data updates after cache invalidation. The dropdown should transition from showing 'No lists available - create one above' to displaying the newly created list name immediately after successful creation."
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Add proper error handling and user feedback for comment list creation failures",
-      "acceptanceCriteria": [
-        "Display clear error messages if list creation fails",
-        "The loading state exits properly even on error",
-        "User can retry creation after an error"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Add comprehensive error handling in the createCommentList mutation's onError callback. Extract error messages from backend Runtime.trap responses and format them for user display. Ensure the mutation properly resets the loading state on error and allows retry attempts."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
-          "operation": "modify",
-          "description": "Add user-visible error feedback UI elements (toast notifications or inline error messages) that display when list creation fails. Show the specific error message returned from the backend. Ensure the button exits the 'Creating List...' loading state and returns to 'Create List' even on error, allowing the user to retry. Add validation to prevent empty list names before submission."
+          "description": "Fix the action select dropdown's onChange handler to properly capture and store the selected value in component state. Ensure the selected action (delete list, reset list, or other operations) is triggered when the dropdown value changes. Add proper error handling for failed actions and update dependent UI elements based on the current selection. Connect the dropdown to the appropriate mutations from useAdminComments hook (deleteList, resetList) and ensure proper query invalidation after actions complete."
         }
       ]
     }
