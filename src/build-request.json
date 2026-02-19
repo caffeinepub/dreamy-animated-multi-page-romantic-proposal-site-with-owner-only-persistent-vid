@@ -1,169 +1,112 @@
 {
   "kind": "build_request",
-  "title": "Add admin panel comment list management with lock controls and usage tracking",
-  "projectName": "Comment Manager",
+  "title": "Rebuild comments/feedback website with working button interactions and navigation",
+  "projectName": "App Review",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add lock/unlock toggle functionality to existing comment lists in the admin panel. When a list is locked, prevent users from generating comments from that list on the customer-facing page. Display a lock icon next to each list in the admin panel to indicate lock status.",
+      "text": "Implement a comment list management system where users can create lists with titles and add comment entries to those lists",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-lock-restriction"
-        ],
-        "quotes": [
-          "it restrict user to take comments if it lock by admin"
+          "msg-2"
         ]
       },
       "acceptanceCriteria": [
-        "Each comment list in the admin panel displays a clickable lock icon",
-        "Clicking the lock icon toggles the list between locked and unlocked states",
-        "Locked lists are visually indicated with a locked padlock icon",
-        "On the customer view page, locked lists cannot be selected for comment generation",
-        "Lock state persists across page refreshes"
+        "Users can create new comment lists with custom titles",
+        "Users can add individual comment entries to existing lists",
+        "Lists and comments persist across sessions"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add available vs. used comment tracking for each list. Display badges showing the count of available (unused) comments and used comments in the list management interface. Track when comments are generated and mark them as 'used'.",
+      "text": "Create an admin panel with lock/unlock controls for managing comment lists",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-tracking-confirmation"
-        ],
-        "quotes": [
-          "yes it is tracking only",
-          "85 available / 5 used"
+          "msg-2"
         ]
       },
       "acceptanceCriteria": [
-        "Display '85 available' and '5 used' style badges in the Managing interface",
-        "Available count shows comments that have not been generated yet",
-        "Used count shows comments that have been generated at least once",
-        "Counts update in real-time when comments are added or generated",
-        "Total in 'Comments in List (90)' equals available + used"
+        "Admin panel displays all comment lists with their lock status",
+        "Admin can toggle lock/unlock status for each list",
+        "Lock status changes persist and are reflected immediately in the UI"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a refresh button next to the delete button in the Managing interface that reloads the current list's comments and usage statistics from the backend.",
-      "target": "frontend",
+      "text": "Implement Internet Identity authentication for admin access control",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-screenshot-upload"
+          "msg-2"
         ]
       },
       "acceptanceCriteria": [
-        "Refresh button appears next to the red delete button in the Managing section",
-        "Clicking refresh fetches the latest comment data from the backend",
-        "Available/used counts update after refresh",
-        "Comment list below updates to show current comments"
+        "Admin panel is protected by Internet Identity authentication",
+        "Unauthenticated users cannot access admin features",
+        "Login flow integrates smoothly with the application"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea (e.g., 'Add 0 Comments' when empty, 'Add 5 Comments' when 5 lines are entered).",
+      "text": "Fix navigation flow so that creating a new list immediately navigates the user to the entry form for that list",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-screenshot-upload"
+          "msg-2"
         ]
       },
       "acceptanceCriteria": [
-        "Button text displays 'Add 0 Comments' when textarea is empty",
-        "Button text updates to 'Add X Comments' where X is the line count",
-        "Count updates in real-time as user types in the textarea",
-        "Each line break counts as one comment"
+        "After creating a new list, user is automatically taken to the entry form",
+        "Navigation transition is smooth and immediate",
+        "User can begin adding entries without additional clicks"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "In the 'Comments in List' section, display individual comments with trash icons for deletion. Show the available and used counts as separate badges (e.g., '85 available' in green, '5 used' in orange).",
+      "text": "Ensure all button interactions work correctly throughout the application in live deployment",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-screenshot-upload"
+          "msg-2"
         ]
       },
       "acceptanceCriteria": [
-        "Each comment displays in a card with a trash icon on the right",
-        "Clicking the trash icon deletes that specific comment",
-        "Available count badge appears in green styling",
-        "Used count badge appears in orange styling",
-        "Badges appear below the 'Comments in List (90)' heading"
+        "All buttons trigger their associated functions when clicked",
+        "No buttons are unresponsive or require multiple clicks",
+        "Button states (loading, disabled) display correctly"
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count (e.g., 'Stasfin: 90', 'TEO FIN - PERSONAL LOAN: 50').",
+      "text": "Apply a cohesive visual design with a professional, modern aesthetic using warm neutral tones and clean typography",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-screenshot-upload"
+          "msg-2"
         ]
       },
       "acceptanceCriteria": [
-        "Bulk Comment Totals section appears below the Existing Lists section",
-        "Each list displays in a card with the list name and total count",
-        "Total count appears in a blue bordered badge on the right",
-        "Section includes an icon and descriptive subtitle",
-        "Dashboard updates when lists are created or comments are added"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all comment lists and their contents after confirmation.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-screenshot-upload"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Danger Zone section appears at the bottom with red heading",
-        "Section includes warning text about irreversible actions",
-        "Red 'Clear All Comment Lists' button with trash icon",
-        "Clicking the button shows a confirmation dialog",
-        "Confirming deletes all lists and comments from the backend",
-        "UI updates to reflect empty state after deletion"
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Ensure all backend operations properly persist data so that created lists, added comments, lock states, and usage tracking survive canister upgrades and page refreshes.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-user-data-persistence-requirement"
-        ],
-        "quotes": [
-          "Make sure all functions work fine after entering data"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Comment lists persist across page refreshes",
-        "Lock states persist across page refreshes",
-        "Available/used tracking persists across page refreshes",
-        "All data survives canister upgrades",
-        "No data loss when adding or deleting comments"
+        "Color palette uses warm neutrals with subtle accents",
+        "Typography is clean and readable across all components",
+        "Layout maintains consistent spacing and visual hierarchy",
+        "Design feels professional and suitable for a feedback management tool"
       ]
     }
   ],
   "constraints": [
-    "Do not change the existing AdminCommentsTab component structure",
-    "Maintain compatibility with the existing useAdminComments hook",
-    "Keep the existing Motoko backend single-actor architecture",
-    "Do not modify Internet Identity authentication logic",
-    "Preserve the existing tab-based admin panel layout"
+    "Use single-actor Motoko architecture for the backend",
+    "Maintain existing Internet Identity authentication integration",
+    "Keep all frontend logic within React + TypeScript + Tailwind stack",
+    "Do not modify immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui"
   ],
   "nonGoals": [
-    "Real-time WebSocket updates between admin and customer views",
-    "Multi-user concurrent editing of comment lists",
-    "Undo/redo functionality for comment operations",
-    "Import/export of comment lists to external formats",
-    "Advanced search or filtering of comments within lists",
-    "Role-based access control beyond the existing admin token system"
+    "Adding user registration or custom authentication beyond Internet Identity",
+    "Implementing real-time collaboration features",
+    "Adding export functionality for comments",
+    "Creating mobile-specific layouts or native apps"
   ],
   "imageRequirements": {
     "required": [],

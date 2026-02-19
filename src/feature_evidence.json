@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-lock-unlock-toggle-functionality-to-existing-comment-lists-in-the-admin-panel-when-a-list-is-locked-prevent-users-from-generating-comments-from-that-list-on-the-customer-facing-page-display-a-lock-icon-next-to-each-list-in-the-admin-panel-to-indicate-lock-status",
-      "featureTitle": "Add lock/unlock toggle functionality to existing comment lists in the admin panel. When a list is locked, prevent users from generating comments from that list on the customer-facing page. Display a lock icon next to each list in the admin panel to indicate lock status.",
+      "featureId": "feature-implement-a-comment-list-management-system-where-users-can-create-lists-with-titles-and-add-comment-entries-to-those-lists",
+      "featureTitle": "Implement a comment list management system where users can create lists with titles and add comment entries to those lists",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,11 +22,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-available-vs-used-comment-tracking-for-each-list-display-badges-showing-the-count-of-available-unused-comments-and-used-comments-in-the-list-management-interface-track-when-comments-are-generated-and-mark-them-as-used",
-      "featureTitle": "Add available vs. used comment tracking for each list. Display badges showing the count of available (unused) comments and used comments in the list management interface. Track when comments are generated and mark them as 'used'.",
+      "featureId": "feature-create-an-admin-panel-with-lock-unlock-controls-for-managing-comment-lists",
+      "featureTitle": "Create an admin panel with lock/unlock controls for managing comment lists",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -44,10 +42,16 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-refresh-button-next-to-the-delete-button-in-the-managing-interface-that-reloads-the-current-list-s-comments-and-usage-statistics-from-the-backend",
-      "featureTitle": "Add a refresh button next to the delete button in the Managing interface that reloads the current list's comments and usage statistics from the backend.",
+      "featureId": "feature-implement-internet-identity-authentication-for-admin-access-control",
+      "featureTitle": "Implement Internet Identity authentication for admin access control",
       "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx"
+        "frontend/src/components/AdminTokenGate.tsx",
+        "frontend/src/components/LoginButton.tsx",
+        "frontend/src/components/ProfileSetupModal.tsx",
+        "frontend/src/components/SiteLayout.tsx",
+        "frontend/src/components/TopSegmentedNav.tsx",
+        "frontend/src/hooks/useAdminToken.ts",
+        "frontend/src/hooks/useUserProfile.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -64,8 +68,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-add-x-comments-button-text-to-dynamically-show-the-count-of-comments-entered-in-the-bulk-upload-textarea-e-g-add-0-comments-when-empty-add-5-comments-when-5-lines-are-entered",
-      "featureTitle": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea (e.g., 'Add 0 Comments' when empty, 'Add 5 Comments' when 5 lines are entered).",
+      "featureId": "feature-fix-navigation-flow-so-that-creating-a-new-list-immediately-navigates-the-user-to-the-entry-form-for-that-list",
+      "featureTitle": "Fix navigation flow so that creating a new list immediately navigates the user to the entry form for that list",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
@@ -84,11 +88,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-in-the-comments-in-list-section-display-individual-comments-with-trash-icons-for-deletion-show-the-available-and-used-counts-as-separate-badges-e-g-85-available-in-green-5-used-in-orange",
-      "featureTitle": "In the 'Comments in List' section, display individual comments with trash icons for deletion. Show the available and used counts as separate badges (e.g., '85 available' in green, '5 used' in orange).",
+      "featureId": "feature-ensure-all-button-interactions-work-correctly-throughout-the-application-in-live-deployment",
+      "featureTitle": "Ensure all button interactions work correctly throughout the application in live deployment",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
+        "frontend/src/pages/CustomerViewPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -105,11 +109,15 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-bulk-comment-totals-dashboard-section-that-displays-a-summary-card-for-each-comment-list-showing-the-list-name-and-total-comment-count-e-g-stasfin-90-teo-fin-personal-loan-50",
-      "featureTitle": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count (e.g., 'Stasfin: 90', 'TEO FIN - PERSONAL LOAN: 50').",
+      "featureId": "feature-apply-a-cohesive-visual-design-with-a-professional-modern-aesthetic-using-warm-neutral-tones-and-clean-typography",
+      "featureTitle": "Apply a cohesive visual design with a professional, modern aesthetic using warm neutral tones and clean typography",
       "files": [
+        "frontend/src/components/SiteLayout.tsx",
+        "frontend/src/components/TopSegmentedNav.tsx",
         "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
+        "frontend/src/index.css",
+        "frontend/src/pages/CustomerViewPage.tsx",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "authorization@4.0.0",
@@ -122,27 +130,6 @@
       ],
       "testIds": [
         "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-danger-zone-section-at-the-bottom-of-the-admin-panel-with-a-red-clear-all-comment-lists-button-that-deletes-all-comment-lists-and-their-contents-after-confirmation",
-      "featureTitle": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all comment lists and their contents after confirmation.",
-      "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/hooks/useAdminComments.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
       ],
       "confidence": "high"
     }

@@ -4,10 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Sparkles, Zap, Copy, Check, Shield, AlertCircle } from 'lucide-react';
+import { Sparkles, Zap, Copy, Check, AlertCircle } from 'lucide-react';
 import { useGetAvailableCommentLists, useGenerateSingleComment, useGenerateBulkComments, useGetBulkKeyStatus } from '@/hooks/useCommentGenerator';
-import { useAdminToken } from '@/hooks/useAdminToken';
-import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import Rotating3DObject from '@/components/Rotating3DObject';
 import { getDeviceId, isListUsedForSingleGeneration, markListAsUsedForSingleGeneration } from '@/lib/deviceId';
@@ -20,8 +18,6 @@ export default function CustomerViewPage() {
   const [singleComment, setSingleComment] = useState('');
   const [bulkComments, setBulkComments] = useState<string[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [adminCode, setAdminCode] = useState('');
-  const [codeError, setCodeError] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [singleGeneratorDisabled, setSingleGeneratorDisabled] = useState(false);
   const [singleGeneratorError, setSingleGeneratorError] = useState('');
@@ -30,8 +26,6 @@ export default function CustomerViewPage() {
   const { data: keyStatus } = useGetBulkKeyStatus();
   const generateSingle = useGenerateSingleComment();
   const generateBulk = useGenerateBulkComments();
-  const { setAdminAccess } = useAdminToken();
-  const navigate = useNavigate();
 
   // Initialize device ID on mount
   useEffect(() => {
@@ -56,24 +50,6 @@ export default function CustomerViewPage() {
       setSingleGeneratorError('');
     }
   }, [selectedListSingle]);
-
-  const handleAdminAccess = useCallback((e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    console.log('[CustomerView] Admin access button clicked');
-    
-    if (adminCode === '7898') {
-      setAdminAccess();
-      setCodeError('');
-      toast.success('Admin access granted!');
-      navigate({ to: '/admin' });
-    } else {
-      setCodeError('Invalid access code. Please try again.');
-      toast.error('Invalid access code');
-    }
-  }, [adminCode, setAdminAccess, navigate]);
 
   const handleGenerateSingle = useCallback(async (e?: React.MouseEvent) => {
     if (e) {
@@ -186,77 +162,35 @@ export default function CustomerViewPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Admin Access Control - Top Left */}
-      <div className="mb-6">
-        <Card className="card-pastel border-blue-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 flex-wrap">
-              <Shield className="w-5 h-5 text-blue-600" />
-              <Label htmlFor="admin-code" className="text-sm font-medium">Admin Access Code:</Label>
-              <Input
-                id="admin-code"
-                type="password"
-                value={adminCode}
-                onChange={(e) => {
-                  setAdminCode(e.target.value);
-                  setCodeError('');
-                }}
-                placeholder="Enter code..."
-                className="w-32"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleAdminAccess();
-                  }
-                }}
-              />
-              <Button
-                onClick={(e) => handleAdminAccess(e)}
-                size="sm"
-                className="btn-gradient"
-                type="button"
-              >
-                Access Admin
-              </Button>
-              {codeError && (
-                <div className="flex items-center gap-2 text-red-600 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  <span>{codeError}</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* 3D Decorative Object */}
       <div className="flex justify-center mb-8">
         <Rotating3DObject />
       </div>
 
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">Customer View</h1>
-        <p className="text-gray-600 text-lg">Generate comments, upload images, and view your activity</p>
+        <h1 className="text-4xl font-bold text-sand-900 mb-3">Customer View</h1>
+        <p className="text-sand-600 text-lg">Generate comments for your app reviews</p>
       </div>
 
       <div className="space-y-6">
         {/* Single Comment Generator */}
-        <Card className="card-pastel">
+        <Card className="bg-white border-sand-200">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 flex items-center justify-center shadow-md">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-xl">Single Comment Generator</CardTitle>
-                <CardDescription>Generate one comment per list (one per device)</CardDescription>
+                <CardTitle className="text-xl text-sand-900">Single Comment Generator</CardTitle>
+                <CardDescription className="text-sand-600">Generate one comment per list (one per device)</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="single-list">Select Comment List</Label>
+              <Label htmlFor="single-list" className="text-sand-900">Select Comment List</Label>
               <Select value={selectedListSingle} onValueChange={setSelectedListSingle} disabled={listsLoading}>
-                <SelectTrigger id="single-list" className="mt-1.5">
+                <SelectTrigger id="single-list" className="mt-1.5 border-sand-200">
                   <SelectValue placeholder="Choose a comment list..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -279,7 +213,7 @@ export default function CustomerViewPage() {
             <Button
               onClick={(e) => handleGenerateSingle(e)}
               disabled={!selectedListSingle || generateSingle.isPending || singleGeneratorDisabled}
-              className="w-full btn-gradient"
+              className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 text-white"
               type="button"
             >
               <Sparkles className="w-4 h-4 mr-2" />
@@ -287,9 +221,9 @@ export default function CustomerViewPage() {
             </Button>
 
             {singleComment && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-gray-800 flex-1">{singleComment}</p>
+                  <p className="text-sand-800 flex-1">{singleComment}</p>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -306,23 +240,23 @@ export default function CustomerViewPage() {
         </Card>
 
         {/* Bulk Comment Generator */}
-        <Card className="card-pastel">
+        <Card className="bg-white border-sand-200">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 flex items-center justify-center shadow-md">
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-xl">Bulk Comment Generator</CardTitle>
-                <CardDescription>Generate multiple comments at once (requires access key)</CardDescription>
+                <CardTitle className="text-xl text-sand-900">Bulk Comment Generator</CardTitle>
+                <CardDescription className="text-sand-600">Generate multiple comments at once (requires access key)</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="bulk-list">Select Comment List</Label>
+              <Label htmlFor="bulk-list" className="text-sand-900">Select Comment List</Label>
               <Select value={selectedListBulk} onValueChange={setSelectedListBulk} disabled={listsLoading}>
-                <SelectTrigger id="bulk-list" className="mt-1.5">
+                <SelectTrigger id="bulk-list" className="mt-1.5 border-sand-200">
                   <SelectValue placeholder="Choose a comment list..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -336,7 +270,7 @@ export default function CustomerViewPage() {
             </div>
 
             <div>
-              <Label htmlFor="bulk-count">Number of Comments</Label>
+              <Label htmlFor="bulk-count" className="text-sand-900">Number of Comments</Label>
               <Input
                 id="bulk-count"
                 type="number"
@@ -345,20 +279,20 @@ export default function CustomerViewPage() {
                 value={bulkCount}
                 onChange={(e) => setBulkCount(e.target.value)}
                 placeholder="5"
-                className="mt-1.5"
+                className="mt-1.5 border-sand-200"
               />
             </div>
 
             {keyStatus?.hasKey && (
               <div>
-                <Label htmlFor="access-key">Access Key</Label>
+                <Label htmlFor="access-key" className="text-sand-900">Access Key</Label>
                 <Input
                   id="access-key"
                   type="password"
                   value={accessKey}
                   onChange={(e) => setAccessKey(e.target.value)}
                   placeholder="Enter access key..."
-                  className="mt-1.5"
+                  className="mt-1.5 border-sand-200"
                 />
               </div>
             )}
@@ -366,7 +300,7 @@ export default function CustomerViewPage() {
             <Button
               onClick={(e) => handleGenerateBulk(e)}
               disabled={!selectedListBulk || generateBulk.isPending}
-              className="w-full btn-gradient"
+              className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 text-white"
               type="button"
             >
               <Zap className="w-4 h-4 mr-2" />
@@ -376,21 +310,22 @@ export default function CustomerViewPage() {
             {bulkComments.length > 0 && (
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-gray-700">Generated Comments ({bulkComments.length})</p>
+                  <p className="text-sm font-medium text-sand-700">Generated Comments ({bulkComments.length})</p>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => copyToClipboard(bulkComments.join('\n'))}
                     type="button"
+                    className="border-sand-300"
                   >
                     <Copy className="w-4 h-4 mr-2" />
                     Copy All
                   </Button>
                 </div>
                 {bulkComments.map((comment, index) => (
-                  <div key={index} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div key={index} className="p-3 bg-amber-50 rounded-lg border border-amber-200">
                     <div className="flex items-start justify-between gap-3">
-                      <p className="text-gray-800 flex-1 text-sm">{comment}</p>
+                      <p className="text-sand-800 flex-1 text-sm">{comment}</p>
                       <Button
                         size="sm"
                         variant="ghost"

@@ -1,92 +1,72 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Admin panel for comment list management system - create custom lists, lock/unlock lists to restrict user access, bulk upload comments, track available vs used counts, manage individual comments with delete functionality, bulk comment totals dashboard, and danger zone for clearing all lists",
+  "summary": "Comments/feedback website where users can create lists and add entries, with an admin panel featuring lock/unlock controls and Internet Identity authentication",
   "architectural_notes": [
-    "Motoko backend for persistent comment list data storage",
-    "React + TypeScript + Tailwind frontend for admin panel UI",
-    "Lock/unlock mechanism to restrict user access to comment lists",
-    "Available vs used comment tracking system per list",
-    "Bulk upload functionality accepting newline-separated comments",
-    "Integration with existing draft version 11 random comment generator"
+    "Backend: Motoko on Internet Computer",
+    "Frontend: React + TypeScript with Tailwind CSS",
+    "Auth: Internet Identity for admin access",
+    "Navigation flow: creating a new list takes users directly to the entry form"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Live deployment had button click issues - functions not triggering when clicking buttons",
+    "Live deployment navigation broken - creating new list doesn't navigate to entry form like in draft",
+    "JavaScript initialization or routing issue preventing interactive features from working in production"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-lock-unlock-toggle-functionality-to-existing-comment-lists-in-the-admin-panel-when-a-list-is-locked-prevent-users-from-generating-comments-from-that-list-on-the-customer-facing-page-display-a-lock-icon-next-to-each-list-in-the-admin-panel-to-indicate-lock-status",
-      "title": "Add lock/unlock toggle functionality to existing comment lists in the admin panel. When a list is locked, prevent users from generating comments from that list on the customer-facing page. Display a lock icon next to each list in the admin panel to indicate lock status.",
+      "id": "feature-implement-a-comment-list-management-system-where-users-can-create-lists-with-titles-and-add-comment-entries-to-those-lists",
+      "title": "Implement a comment list management system where users can create lists with titles and add comment entries to those lists",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-available-vs-used-comment-tracking-for-each-list-display-badges-showing-the-count-of-available-unused-comments-and-used-comments-in-the-list-management-interface-track-when-comments-are-generated-and-mark-them-as-used",
-      "title": "Add available vs. used comment tracking for each list. Display badges showing the count of available (unused) comments and used comments in the list management interface. Track when comments are generated and mark them as 'used'.",
+      "id": "feature-create-an-admin-panel-with-lock-unlock-controls-for-managing-comment-lists",
+      "title": "Create an admin panel with lock/unlock controls for managing comment lists",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-refresh-button-next-to-the-delete-button-in-the-managing-interface-that-reloads-the-current-list-s-comments-and-usage-statistics-from-the-backend",
-      "title": "Add a refresh button next to the delete button in the Managing interface that reloads the current list's comments and usage statistics from the backend.",
+      "id": "feature-implement-internet-identity-authentication-for-admin-access-control",
+      "title": "Implement Internet Identity authentication for admin access control",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-add-x-comments-button-text-to-dynamically-show-the-count-of-comments-entered-in-the-bulk-upload-textarea-e-g-add-0-comments-when-empty-add-5-comments-when-5-lines-are-entered",
-      "title": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea (e.g., 'Add 0 Comments' when empty, 'Add 5 Comments' when 5 lines are entered).",
+      "id": "feature-fix-navigation-flow-so-that-creating-a-new-list-immediately-navigates-the-user-to-the-entry-form-for-that-list",
+      "title": "Fix navigation flow so that creating a new list immediately navigates the user to the entry form for that list",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-in-the-comments-in-list-section-display-individual-comments-with-trash-icons-for-deletion-show-the-available-and-used-counts-as-separate-badges-e-g-85-available-in-green-5-used-in-orange",
-      "title": "In the 'Comments in List' section, display individual comments with trash icons for deletion. Show the available and used counts as separate badges (e.g., '85 available' in green, '5 used' in orange).",
+      "id": "feature-ensure-all-button-interactions-work-correctly-throughout-the-application-in-live-deployment",
+      "title": "Ensure all button interactions work correctly throughout the application in live deployment",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-bulk-comment-totals-dashboard-section-that-displays-a-summary-card-for-each-comment-list-showing-the-list-name-and-total-comment-count-e-g-stasfin-90-teo-fin-personal-loan-50",
-      "title": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count (e.g., 'Stasfin: 90', 'TEO FIN - PERSONAL LOAN: 50').",
+      "id": "feature-apply-a-cohesive-visual-design-with-a-professional-modern-aesthetic-using-warm-neutral-tones-and-clean-typography",
+      "title": "Apply a cohesive visual design with a professional, modern aesthetic using warm neutral tones and clean typography",
       "reqIds": [
         "REQ-6"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-add-a-danger-zone-section-at-the-bottom-of-the-admin-panel-with-a-red-clear-all-comment-lists-button-that-deletes-all-comment-lists-and-their-contents-after-confirmation",
-      "title": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all comment lists and their contents after confirmation.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Admin panel with comment list management - create lists, lock/unlock, bulk upload, track usage, delete comments, bulk totals dashboard, danger zone",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Ensure all backend operations properly persist data so that created lists, added comments, lock states, and usage tracking survive canister upgrades and page refreshes.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "status": "pending"
-    }
-  ],
-  "projectName": "Comment Manager",
+  "new_feature_requests": [],
+  "gameProjectType": "none",
+  "projectName": "App Review",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

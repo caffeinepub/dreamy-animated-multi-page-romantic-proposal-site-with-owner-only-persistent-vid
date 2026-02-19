@@ -1,160 +1,237 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add admin panel comment list management with lock controls and usage tracking",
+  "title": "Rebuild comments/feedback website with working button interactions and navigation",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add lock/unlock toggle functionality to existing comment lists in the admin panel with visual indicators and customer-facing restrictions",
+      "summary": "Implement comment list management system with create and add entry functionality",
       "acceptanceCriteria": [
-        "Each comment list in the admin panel displays a clickable lock icon",
-        "Clicking the lock icon toggles the list between locked and unlocked states",
-        "Locked lists are visually indicated with a locked padlock icon",
-        "On the customer view page, locked lists cannot be selected for comment generation",
-        "Lock state persists across page refreshes"
+        "Users can create new comment lists with custom titles",
+        "Users can add individual comment entries to existing lists",
+        "Lists and comments persist across sessions"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Add useToggleLockList hook that calls the toggleLockList backend method and invalidates the comment list queries. Add useGetListsWithLockStatus hook that fetches CommentListSummary arrays including lock status from the backend."
-        },
-        {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "In the Existing Lists section, replace the plain list name display with cards that include a clickable lock/unlock icon button next to each list name. Use the useGetListsWithLockStatus hook to display lock status. Wire the lock icon button to call useToggleLockList mutation when clicked. Show a locked padlock icon when locked is true, unlocked padlock icon when false."
+          "description": "Ensure the create list functionality and add comment operations work correctly. Verify that the form submissions trigger backend calls using useAdminComments hooks. Ensure proper error handling and success feedback with toast notifications. Make sure all button click handlers are properly bound and functional."
         },
         {
-          "path": "frontend/src/pages/CustomerViewPage.tsx",
+          "path": "frontend/src/hooks/useAdminComments.ts",
           "operation": "modify",
-          "description": "Update the comment list selection logic to filter out locked lists when fetching available lists for customer generation. Use the getListsWithLockStatus backend method instead of getAvailableCommentLists to check lock status. Prevent locked lists from appearing in the selection dropdown or disable them with visual indication."
+          "description": "Review and ensure all mutation hooks (useCreateCommentList, useAddComment, useBulkAddComments) properly invalidate queries after successful operations. Verify error handling is in place for all backend calls."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add available vs. used comment tracking for each list with badge displays showing counts in the list management interface",
+      "summary": "Create admin panel with lock/unlock controls for comment list management",
       "acceptanceCriteria": [
-        "Display '85 available' and '5 used' style badges in the Managing interface",
-        "Available count shows comments that have not been generated yet",
-        "Used count shows comments that have been generated at least once",
-        "Counts update in real-time when comments are added or generated",
-        "Total in 'Comments in List (90)' equals available + used"
+        "Admin panel displays all comment lists with their lock status",
+        "Admin can toggle lock/unlock status for each list",
+        "Lock status changes persist and are reflected immediately in the UI"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Add useGetCommentListSummary hook that fetches CommentListSummary data including usedComments and totalComments from the backend for a specific list. Add logic to calculate availableComments as totalComments minus usedComments."
-        },
-        {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "In the Managing section, use the useGetCommentListSummary hook to fetch usage statistics for the selected list. Display two badge components below the 'Comments in List (90)' heading: one green badge showing 'X available' and one orange badge showing 'Y used'. Update the total count display to use the summary data."
+          "description": "Ensure the lock/unlock toggle button functionality works correctly. Verify that clicking the lock button calls the useLockUnlockList mutation and updates the UI immediately. Add optimistic updates if needed for better UX. Ensure proper visual indicators for locked vs unlocked states."
+        },
+        {
+          "path": "frontend/src/hooks/useAdminComments.ts",
+          "operation": "modify",
+          "description": "Verify the useLockUnlockList hook properly calls toggleLockList backend capability and invalidates the relevant queries to refresh lock status in the UI."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add a refresh button next to the delete button in the Managing interface that reloads current list data",
+      "summary": "Implement Internet Identity authentication for admin access control",
       "acceptanceCriteria": [
-        "Refresh button appears next to the red delete button in the Managing section",
-        "Clicking refresh fetches the latest comment data from the backend",
-        "Available/used counts update after refresh",
-        "Comment list below updates to show current comments"
+        "Admin panel is protected by Internet Identity authentication",
+        "Unauthenticated users cannot access admin features",
+        "Login flow integrates smoothly with the application"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
+          "path": "frontend/src/components/AdminTokenGate.tsx",
           "operation": "modify",
-          "description": "Add a refresh icon button next to the existing delete button in the Managing section. Wire the button to manually refetch the comment list data and summary statistics by calling queryClient.invalidateQueries for the relevant query keys (comment list and comment list summary)."
+          "description": "Replace the current token-based authentication with Internet Identity authentication using the authorization component. Use useInternetIdentity hook to check authentication status. Verify the user's admin role by calling isCallerAdmin() before granting access. Display appropriate loading states during authentication checks and access denied messages for non-admin users. Verify the component's usage instructions from the authorization component before implementing."
+        },
+        {
+          "path": "frontend/src/components/LoginButton.tsx",
+          "operation": "create",
+          "description": "Create a login/logout button component following the authorization component's usage instructions. Implement authentication flow using useInternetIdentity hook with proper state handling for login/logout transitions. Include query client clearing on logout. Add visual feedback for disabled/loading states. Verify the component's usage instructions from the authorization component before implementing."
+        },
+        {
+          "path": "frontend/src/components/TopSegmentedNav.tsx",
+          "operation": "modify",
+          "description": "Add the LoginButton component to the navigation bar. Update admin panel visibility logic to check Internet Identity authentication state and admin role instead of token-based authentication. Ensure smooth integration with existing navigation structure."
+        },
+        {
+          "path": "frontend/src/hooks/useAdminToken.ts",
+          "operation": "delete",
+          "description": "Remove the token-based authentication hook as it will be replaced by Internet Identity and role-based access control from the authorization component."
+        },
+        {
+          "path": "frontend/src/components/ProfileSetupModal.tsx",
+          "operation": "create",
+          "description": "Create a modal component for first-time user profile setup following the authorization component's user profile setup guidelines. Display when user is authenticated but has no profile (getCallerUserProfile returns null). Include a form to collect the user's name and call saveCallerUserProfile on submission. Implement proper loading state handling to prevent modal flash during initial load. Verify the component's usage instructions from the authorization component before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useUserProfile.ts",
+          "operation": "create",
+          "description": "Create React Query hooks for user profile management including useGetCallerUserProfile, useSaveCallerUserProfile. Implement the prevention of profile setup modal flash as described in the authorization component's usage instructions. Ensure proper actor dependency handling and query state management. Verify the component's usage instructions from the authorization component before implementing."
+        },
+        {
+          "path": "frontend/src/components/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Integrate the ProfileSetupModal component into the layout. Show the modal when user is authenticated, profile loading is complete, and no profile exists. Ensure the modal appears above all other content and blocks interaction until profile is set up."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Update the 'Add X Comments' button text to dynamically show the count of comments entered in the bulk upload textarea",
+      "summary": "Fix navigation flow to automatically navigate to entry form after creating a new list",
       "acceptanceCriteria": [
-        "Button text displays 'Add 0 Comments' when textarea is empty",
-        "Button text updates to 'Add X Comments' where X is the line count",
-        "Count updates in real-time as user types in the textarea",
-        "Each line break counts as one comment"
+        "After creating a new list, user is automatically taken to the entry form",
+        "Navigation transition is smooth and immediate",
+        "User can begin adding entries without additional clicks"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "In the Bulk Upload section, add state to track the textarea content. Add an onChange handler that counts non-empty lines in the textarea value (split by newline and filter out empty strings). Update the 'Add Comments' button text to dynamically display 'Add X Comments' where X is the counted line count, defaulting to 'Add 0 Comments' when empty."
+          "description": "Update the create list success handler to automatically expand/focus the newly created list's entry form section. Implement smooth scrolling to the list's comment input area after creation. Ensure the list name input clears and the new list appears immediately in the UI with its add comment form ready for input."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "In the 'Comments in List' section, display individual comments with trash icons for deletion and show available/used counts as separate badges",
+      "summary": "Ensure all button interactions work correctly in live deployment",
       "acceptanceCriteria": [
-        "Each comment displays in a card with a trash icon on the right",
-        "Clicking the trash icon deletes that specific comment",
-        "Available count badge appears in green styling",
-        "Used count badge appears in orange styling",
-        "Badges appear below the 'Comments in List (90)' heading"
+        "All buttons trigger their associated functions when clicked",
+        "No buttons are unresponsive or require multiple clicks",
+        "Button states (loading, disabled) display correctly"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Ensure the existing useDeleteComment hook properly invalidates both the comment list query and the comment list summary query after deletion to update counts."
-        },
-        {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "In the Comments in List section, render each comment in a card component with the comment text on the left and a trash icon button on the right. Wire the trash icon to call the useDeleteComment mutation. Display the available and used count badges (already added in REQ-2) with green styling for available badge and orange styling for used badge using Tailwind CSS classes."
+          "description": "Review all button click handlers to ensure they are properly bound and prevent default form submission where needed. Add loading states to all action buttons using mutation isPending states. Disable buttons during operations to prevent duplicate submissions. Ensure all forms use onSubmit handlers with e.preventDefault()."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminImagesTab.tsx",
+          "operation": "modify",
+          "description": "Review delete button handlers to ensure proper binding and loading states. Add confirmation dialogs for destructive actions. Disable buttons during deletion operations."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminChatTab.tsx",
+          "operation": "modify",
+          "description": "Verify message submission button functionality with proper loading and disabled states. Ensure form submission clears inputs after successful message send."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
+          "operation": "modify",
+          "description": "Review all CRUD operation buttons for live list apps and usernames. Ensure proper loading states and disabled states during operations. Verify bulk operations handle large inputs correctly."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
+          "operation": "modify",
+          "description": "Verify access key management button handlers work correctly with proper loading and confirmation states. Ensure dialogs close properly after operations complete."
+        },
+        {
+          "path": "frontend/src/pages/CustomerViewPage.tsx",
+          "operation": "modify",
+          "description": "Review comment generation button functionality. Ensure proper loading states during generation. Verify device ID tracking works correctly for single-use restrictions. Add visual feedback for successful comment generation."
+        },
+        {
+          "path": "frontend/src/pages/LiveListCheckerPage.tsx",
+          "operation": "modify",
+          "description": "Verify check button functionality with proper loading states. Ensure results display correctly and CSV export button works. Add feedback for empty results or errors."
+        },
+        {
+          "path": "frontend/src/pages/UploadSectionPage.tsx",
+          "operation": "modify",
+          "description": "Verify upload button functionality with progress tracking. Ensure ExternalBlob upload progress callbacks work correctly. Add proper success/error feedback after upload completion."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Add a 'Bulk Comment Totals' dashboard section that displays a summary card for each comment list showing the list name and total comment count",
+      "summary": "Apply cohesive visual design with professional modern aesthetic using warm neutral tones",
       "acceptanceCriteria": [
-        "Bulk Comment Totals section appears below the Existing Lists section",
-        "Each list displays in a card with the list name and total count",
-        "Total count appears in a blue bordered badge on the right",
-        "Section includes an icon and descriptive subtitle",
-        "Dashboard updates when lists are created or comments are added"
+        "Color palette uses warm neutrals with subtle accents",
+        "Typography is clean and readable across all components",
+        "Layout maintains consistent spacing and visual hierarchy",
+        "Design feels professional and suitable for a feedback management tool"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminComments.ts",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Ensure the useGetBulkCommentTotals hook properly fetches the BulkCommentTotals summary data. Add a hook or extend the existing one to fetch all CommentListSummary entries to display individual list totals."
+          "description": "Update the color system to use warm neutral tones throughout. Replace current color variables with warm beige/sand backgrounds, warm gray text colors, and subtle amber/brown accents. Ensure good contrast ratios for accessibility. Update both light and dark mode color schemes to maintain the warm aesthetic. Keep existing utility classes for cards and buttons but update their color references."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Update the Tailwind configuration to extend the theme with warm neutral color palette. Configure primary colors as warm browns/ambers, secondary as warm grays, and accent as subtle gold/bronze. Ensure typography settings promote clean readable fonts with appropriate line heights and letter spacing."
+        },
+        {
+          "path": "frontend/src/components/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Update the layout styling to use warm neutral background colors instead of the current background image. Apply consistent padding and spacing. Ensure the footer uses warm neutral tones consistent with the new palette. Update navigation bar styling to match the new aesthetic."
+        },
+        {
+          "path": "frontend/src/components/TopSegmentedNav.tsx",
+          "operation": "modify",
+          "description": "Update navigation button styles to use warm neutral colors with subtle hover effects. Ensure active/selected states are visually clear. Apply consistent spacing and sizing that aligns with professional design standards."
         },
         {
           "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
           "operation": "modify",
-          "description": "Add a new 'Bulk Comment Totals' section below the Existing Lists section. Include a database/storage icon and subtitle 'Quick summary of total comments in each list'. Use the useGetListsWithLockStatus hook to fetch all lists with their totals. Render each list as a card showing the list name on the left and the total comment count in a blue bordered badge on the right. Ensure the section updates when lists are created or comments are added by relying on query invalidation."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Add a 'Danger Zone' section at the bottom of the admin panel with a red 'Clear All Comment Lists' button that deletes all lists after confirmation",
-      "acceptanceCriteria": [
-        "Danger Zone section appears at the bottom with red heading",
-        "Section includes warning text about irreversible actions",
-        "Red 'Clear All Comment Lists' button with trash icon",
-        "Clicking the button shows a confirmation dialog",
-        "Confirming deletes all lists and comments from the backend",
-        "UI updates to reflect empty state after deletion"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Add useClearAllCommentLists hook that calls the clearAllCommentLists backend method and invalidates all comment-related queries (available lists, comment lists, bulk totals, and list summaries) to update the UI after deletion."
+          "description": "Apply consistent styling with warm neutral colors to all form inputs, buttons, and content cards. Ensure proper spacing between list items and sections. Update button colors to use warm accent tones. Apply subtle shadows and borders for depth."
         },
         {
-          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
+          "path": "frontend/src/components/admin/AdminImagesTab.tsx",
           "operation": "modify",
-          "description": "Add a 'Danger Zone' section at the bottom of the admin panel with a red heading and warning text stating 'Irreversible actions that affect all comment lists'. Include a red 'Clear All Comment Lists' button with a trash icon. Wire the button to show a confirmation dialog (using window.confirm or a modal component) with a warning message. On confirmation, call the useClearAllCommentLists mutation to delete all lists and update the UI to show an empty state."
+          "description": "Update the image grid layout with warm neutral borders and backgrounds. Ensure consistent card styling with subtle shadows. Apply proper spacing in the grid layout."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminChatTab.tsx",
+          "operation": "modify",
+          "description": "Style the chat interface with warm neutral message bubbles and backgrounds. Ensure clear visual hierarchy between sender names, messages, and timestamps. Apply consistent form styling."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
+          "operation": "modify",
+          "description": "Update all form sections and app cards with warm neutral styling. Ensure consistent button and input styles. Apply proper spacing and visual grouping."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
+          "operation": "modify",
+          "description": "Apply warm neutral card styling to settings sections. Ensure buttons and form elements match the overall design system."
+        },
+        {
+          "path": "frontend/src/pages/AdminPanelPage.tsx",
+          "operation": "modify",
+          "description": "Update the admin panel container and tab styling with warm neutral colors. Ensure the Shield icon branding complements the new color scheme. Apply consistent padding and spacing throughout."
+        },
+        {
+          "path": "frontend/src/pages/CustomerViewPage.tsx",
+          "operation": "modify",
+          "description": "Style the customer view with warm neutral tones. Ensure form elements, select dropdowns, and result displays use consistent styling. Apply clear visual hierarchy for different sections."
+        },
+        {
+          "path": "frontend/src/pages/LiveListCheckerPage.tsx",
+          "operation": "modify",
+          "description": "Update the checker interface with warm neutral styling. Ensure input areas, result tables, and action buttons follow the design system. Apply proper spacing and grouping."
+        },
+        {
+          "path": "frontend/src/pages/UploadSectionPage.tsx",
+          "operation": "modify",
+          "description": "Style the upload interface with warm neutral tones. Ensure the upload area, progress indicators, and success messages match the overall design aesthetic."
         }
       ]
     }

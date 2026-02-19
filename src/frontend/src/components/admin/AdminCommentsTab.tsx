@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +28,7 @@ export default function AdminCommentsTab() {
   const [addMode, setAddMode] = useState<'bulk' | 'single'>('bulk');
   const [bulkComments, setBulkComments] = useState('');
   const [singleComment, setSingleComment] = useState('');
+  const addCommentsSectionRef = useRef<HTMLDivElement>(null);
 
   const queryClient = useQueryClient();
   const { data: listsWithLockStatus = [], isLoading: listsLoading } = useGetListsWithLockStatus();
@@ -71,7 +72,13 @@ export default function AdminCommentsTab() {
       await createList.mutateAsync(trimmedName);
       console.log('[AdminCommentsTab] List created successfully');
       setNewListName('');
+      setSelectedList(trimmedName);
       toast.success(`List "${trimmedName}" created successfully!`);
+      
+      // Scroll to add comments section after a short delay
+      setTimeout(() => {
+        addCommentsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
     } catch (error: any) {
       console.error('[AdminCommentsTab] Error creating list:', error);
       toast.error(error.message || 'Failed to create list');
@@ -266,27 +273,27 @@ export default function AdminCommentsTab() {
   return (
     <div className="space-y-6">
       {/* Create New List */}
-      <Card className="card-pastel border-2 border-blue-300 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50">
+      <Card className="border-2 border-amber-200 shadow-lg bg-white">
+        <CardHeader className="bg-gradient-to-r from-sand-50 to-amber-50">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 flex items-center justify-center shadow-md">
               <Plus className="w-6 h-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-xl">Create New List</CardTitle>
-              <CardDescription>Add a new comment list to the system</CardDescription>
+              <CardTitle className="text-xl text-sand-900">Create New List</CardTitle>
+              <CardDescription className="text-sand-600">Add a new comment list to the system</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-6">
           <div>
-            <Label htmlFor="new-list-name" className="text-base font-semibold">List Name</Label>
+            <Label htmlFor="new-list-name" className="text-base font-semibold text-sand-900">List Name</Label>
             <Input
               id="new-list-name"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
               placeholder="e.g., product-reviews"
-              className="mt-2 text-base h-12 border-2 focus:border-blue-500"
+              className="mt-2 text-base h-12 border-2 border-sand-200 focus:border-amber-500"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleCreateList(e);
@@ -298,7 +305,7 @@ export default function AdminCommentsTab() {
           <Button
             onClick={(e) => handleCreateList(e)}
             disabled={createList.isPending || !newListName.trim()}
-            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 shadow-md hover:shadow-lg transition-all"
+            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 shadow-md hover:shadow-lg transition-all text-white"
             type="button"
           >
             {createList.isPending ? (
@@ -314,25 +321,25 @@ export default function AdminCommentsTab() {
       </Card>
 
       {/* Existing Lists */}
-      <Card className="card-pastel">
+      <Card className="bg-white border-sand-200">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <List className="w-6 h-6 text-blue-600" />
+            <List className="w-6 h-6 text-amber-600" />
             <div>
-              <CardTitle>Existing Lists</CardTitle>
-              <CardDescription>Select a list to manage its comments</CardDescription>
+              <CardTitle className="text-sand-900">Existing Lists</CardTitle>
+              <CardDescription className="text-sand-600">Select a list to manage its comments</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {listsLoading ? (
             <div className="p-8 text-center">
-              <Loader2 className="w-8 h-8 mx-auto mb-3 animate-spin text-blue-600" />
-              <p className="text-gray-600">Loading lists...</p>
+              <Loader2 className="w-8 h-8 mx-auto mb-3 animate-spin text-amber-600" />
+              <p className="text-sand-600">Loading lists...</p>
             </div>
           ) : listsWithLockStatus.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-              <List className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+            <div className="p-8 text-center text-sand-500 bg-sand-50 rounded-lg border border-sand-200">
+              <List className="w-12 h-12 mx-auto mb-3 text-sand-400" />
               <p className="font-medium">No lists yet</p>
               <p className="text-sm">Create your first list above</p>
             </div>
@@ -343,11 +350,11 @@ export default function AdminCommentsTab() {
                 onClick={() => setSelectedList(list.name)}
                 className={`p-4 rounded-lg border-2 flex items-center justify-between cursor-pointer transition-all ${
                   selectedList === list.name
-                    ? 'bg-blue-50 border-blue-400 shadow-md'
-                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                    ? 'bg-amber-50 border-amber-400 shadow-md'
+                    : 'bg-white border-sand-200 hover:border-amber-300 hover:shadow-sm'
                 }`}
               >
-                <span className="font-medium text-gray-900">{list.name}</span>
+                <span className="font-medium text-sand-900">{list.name}</span>
                 <Button
                   onClick={(e) => handleToggleLock(list.name, e)}
                   variant="ghost"
@@ -369,20 +376,20 @@ export default function AdminCommentsTab() {
       </Card>
 
       {/* Bulk Comment Totals */}
-      <Card className="card-pastel border-blue-200">
+      <Card className="bg-white border-amber-200">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <Database className="w-6 h-6 text-blue-600" />
+            <Database className="w-6 h-6 text-amber-600" />
             <div>
-              <CardTitle>Bulk Comment Totals</CardTitle>
-              <CardDescription>Quick summary of total comments in each list</CardDescription>
+              <CardTitle className="text-sand-900">Bulk Comment Totals</CardTitle>
+              <CardDescription className="text-sand-600">Quick summary of total comments in each list</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {listsWithLockStatus.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-              <Database className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+            <div className="p-8 text-center text-sand-500 bg-sand-50 rounded-lg border border-sand-200">
+              <Database className="w-12 h-12 mx-auto mb-3 text-sand-400" />
               <p className="font-medium">No lists to display</p>
               <p className="text-sm">Create a list to see totals here</p>
             </div>
@@ -390,10 +397,10 @@ export default function AdminCommentsTab() {
             listsWithLockStatus.map((list) => (
               <div
                 key={list.name}
-                className="p-4 rounded-lg border border-gray-200 bg-white flex items-center justify-between"
+                className="p-4 rounded-lg border border-sand-200 bg-white flex items-center justify-between"
               >
-                <span className="font-medium text-gray-900">{list.name}</span>
-                <Badge variant="outline" className="text-lg font-bold text-blue-600 border-2 border-blue-400 px-4 py-1">
+                <span className="font-medium text-sand-900">{list.name}</span>
+                <Badge variant="outline" className="text-lg font-bold text-amber-700 border-2 border-amber-400 px-4 py-1">
                   {Number(list.totalComments)}
                 </Badge>
               </div>
@@ -404,168 +411,184 @@ export default function AdminCommentsTab() {
 
       {/* Managing Section */}
       {selectedList && (
-        <Card className="card-pastel border-2 border-blue-300">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50">
-            <CardTitle className="text-xl text-blue-900">Managing: {selectedList}</CardTitle>
-            <CardDescription>Add, view, and manage comments in this list</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-            {/* Available/Used Badges and Actions */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <Badge className="bg-green-100 text-green-800 border border-green-300 px-4 py-2 text-base font-semibold">
-                  {availableCount} available
-                </Badge>
-                <Badge className="bg-orange-100 text-orange-800 border border-orange-300 px-4 py-2 text-base font-semibold">
-                  {usedCount} used
-                </Badge>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={(e) => handleRefresh(e)}
-                  variant="outline"
-                  size="sm"
-                  type="button"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={(e) => handleDeleteList(e)}
-                  variant="destructive"
-                  size="sm"
-                  disabled={deleteList.isPending}
-                  type="button"
-                >
-                  {deleteList.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {/* Tab Toggle */}
-            <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-              <Button
-                variant={addMode === 'bulk' ? 'default' : 'ghost'}
-                onClick={() => setAddMode('bulk')}
-                className="flex-1"
-                type="button"
-              >
-                Bulk Upload
-              </Button>
-              <Button
-                variant={addMode === 'single' ? 'default' : 'ghost'}
-                onClick={() => setAddMode('single')}
-                className="flex-1"
-                type="button"
-              >
-                Single Comment
-              </Button>
-            </div>
-
-            {/* Add Comments Section */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">
-                {addMode === 'bulk' ? 'Comments (one per line)' : 'Single Comment'}
-              </Label>
-              {addMode === 'bulk' ? (
-                <Textarea
-                  value={bulkComments}
-                  onChange={(e) => setBulkComments(e.target.value)}
-                  placeholder="Enter comments, one per line..."
-                  className="min-h-[150px] text-base"
-                  disabled={addBulk.isPending}
-                />
-              ) : (
-                <Input
-                  value={singleComment}
-                  onChange={(e) => setSingleComment(e.target.value)}
-                  placeholder="Enter a single comment..."
-                  className="text-base h-12"
-                  disabled={addSingle.isPending}
-                />
-              )}
-
-              <Button
-                onClick={(e) => handleAddComments(e)}
-                disabled={addBulk.isPending || addSingle.isPending}
-                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500"
-                type="button"
-              >
-                {(addBulk.isPending || addSingle.isPending) ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  `Add ${addMode === 'bulk' ? bulkCommentCount : (singleComment.trim() ? 1 : 0)} Comment${addMode === 'bulk' && bulkCommentCount !== 1 ? 's' : ''}`
-                )}
-              </Button>
-            </div>
-
-            {/* Comments List */}
-            <div className="space-y-3">
+        <div ref={addCommentsSectionRef}>
+          <Card className="border-2 border-amber-300 bg-white">
+            <CardHeader className="bg-gradient-to-r from-sand-50 to-amber-50">
+              <CardTitle className="text-xl text-sand-900">Managing: {selectedList}</CardTitle>
+              <CardDescription className="text-sand-600">Add, view, and manage comments in this list</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              {/* Available/Used Badges and Actions */}
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Comments in List ({totalCount})</Label>
                 <div className="flex gap-2">
-                  <Badge className="bg-green-100 text-green-800 border border-green-300">
+                  <Badge className="bg-green-100 text-green-800 border border-green-300 px-4 py-2 text-base font-semibold">
                     {availableCount} available
                   </Badge>
-                  <Badge className="bg-orange-100 text-orange-800 border border-orange-300">
+                  <Badge className="bg-orange-100 text-orange-800 border border-orange-300 px-4 py-2 text-base font-semibold">
                     {usedCount} used
                   </Badge>
                 </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={(e) => handleRefresh(e)}
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    className="border-sand-300 hover:bg-sand-50"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={(e) => handleDeleteList(e)}
+                    variant="destructive"
+                    size="sm"
+                    disabled={deleteList.isPending}
+                    type="button"
+                  >
+                    {deleteList.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              
-              <div className="max-h-[400px] overflow-y-auto space-y-2">
-                {selectedListComments.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-                    <List className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                    <p className="font-medium">No comments yet</p>
-                    <p className="text-sm">Add comments using the form above</p>
-                  </div>
+
+              {/* Tab Toggle */}
+              <div className="flex gap-2 p-1 bg-sand-100 rounded-lg">
+                <Button
+                  variant={addMode === 'bulk' ? 'default' : 'ghost'}
+                  onClick={() => setAddMode('bulk')}
+                  className={`flex-1 ${addMode === 'bulk' ? 'bg-gradient-to-r from-amber-500 to-orange-400 text-white' : ''}`}
+                  type="button"
+                >
+                  Bulk Upload
+                </Button>
+                <Button
+                  variant={addMode === 'single' ? 'default' : 'ghost'}
+                  onClick={() => setAddMode('single')}
+                  className={`flex-1 ${addMode === 'single' ? 'bg-gradient-to-r from-amber-500 to-orange-400 text-white' : ''}`}
+                  type="button"
+                >
+                  Single Comment
+                </Button>
+              </div>
+
+              {/* Add Comments Section */}
+              <div className="space-y-4">
+                <Label className="text-base font-semibold text-sand-900">
+                  {addMode === 'bulk' ? 'Comments (one per line)' : 'Single Comment'}
+                </Label>
+                {addMode === 'bulk' ? (
+                  <Textarea
+                    value={bulkComments}
+                    onChange={(e) => setBulkComments(e.target.value)}
+                    placeholder="Enter comments, one per line..."
+                    className="min-h-[150px] text-base border-2 border-sand-200 focus:border-amber-500"
+                    disabled={addBulk.isPending}
+                  />
                 ) : (
-                  selectedListComments.map((comment, index) => (
-                    <div
-                      key={index}
-                      className="p-4 rounded-lg border bg-white flex items-start justify-between gap-3"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm break-words text-gray-900">{comment.text}</p>
-                      </div>
-                      <Button
-                        onClick={(e) => handleDeleteComment(comment.text, e)}
-                        variant="ghost"
-                        size="sm"
-                        disabled={deleteComment.isPending}
-                        type="button"
-                        className="flex-shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </Button>
-                    </div>
-                  ))
+                  <Input
+                    value={singleComment}
+                    onChange={(e) => setSingleComment(e.target.value)}
+                    placeholder="Enter a single comment..."
+                    className="text-base h-12 border-2 border-sand-200 focus:border-amber-500"
+                    disabled={addSingle.isPending}
+                  />
                 )}
+                <Button
+                  onClick={(e) => handleAddComments(e)}
+                  disabled={
+                    (addMode === 'bulk' && (addBulk.isPending || !bulkComments.trim())) ||
+                    (addMode === 'single' && (addSingle.isPending || !singleComment.trim()))
+                  }
+                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 text-white"
+                  type="button"
+                >
+                  {(addMode === 'bulk' && addBulk.isPending) || (addMode === 'single' && addSingle.isPending) ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Adding...
+                    </>
+                  ) : addMode === 'bulk' ? (
+                    `Add ${bulkCommentCount} Comment${bulkCommentCount !== 1 ? 's' : ''}`
+                  ) : (
+                    'Add Comment'
+                  )}
+                </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+
+              {/* Comments List */}
+              {selectedListComments.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-semibold text-sand-900">Comments ({selectedListComments.length})</Label>
+                    <Button
+                      onClick={(e) => handleResetList(e)}
+                      variant="outline"
+                      size="sm"
+                      disabled={resetList.isPending}
+                      type="button"
+                      className="border-sand-300 hover:bg-sand-50"
+                    >
+                      {resetList.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                      )}
+                      Reset All
+                    </Button>
+                  </div>
+                  <div className="max-h-96 overflow-y-auto space-y-2 border border-sand-200 rounded-lg p-3 bg-sand-50">
+                    {selectedListComments.map((comment, index) => (
+                      <div
+                        key={index}
+                        className={`p-3 rounded-lg border flex items-start justify-between gap-3 ${
+                          comment.used
+                            ? 'bg-orange-50 border-orange-200'
+                            : 'bg-white border-sand-200'
+                        }`}
+                      >
+                        <p className="text-sm text-sand-800 flex-1">{comment.text}</p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {comment.used && (
+                            <Badge variant="outline" className="text-xs bg-orange-100 text-orange-700 border-orange-300">
+                              Used
+                            </Badge>
+                          )}
+                          <Button
+                            onClick={(e) => handleDeleteComment(comment.text, e)}
+                            variant="ghost"
+                            size="sm"
+                            disabled={deleteComment.isPending}
+                            type="button"
+                            className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Danger Zone */}
-      <Card className="card-pastel border-2 border-red-300">
-        <CardHeader className="bg-red-50">
-          <CardTitle className="text-xl text-red-900">Danger Zone</CardTitle>
-          <CardDescription className="text-red-700">Irreversible actions that affect all comment lists</CardDescription>
+      <Card className="border-2 border-red-300 bg-red-50">
+        <CardHeader>
+          <CardTitle className="text-red-900">Danger Zone</CardTitle>
+          <CardDescription className="text-red-700">Irreversible actions - use with extreme caution</CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent>
           <Button
             onClick={(e) => handleClearAllLists(e)}
-            disabled={clearAllLists.isPending}
             variant="destructive"
-            className="w-full h-12 text-base font-semibold bg-red-600 hover:bg-red-700"
+            disabled={clearAllLists.isPending}
+            className="w-full h-12 text-base font-semibold"
             type="button"
           >
             {clearAllLists.isPending ? (
@@ -574,10 +597,7 @@ export default function AdminCommentsTab() {
                 Clearing...
               </>
             ) : (
-              <>
-                <Trash2 className="w-5 h-5 mr-2" />
-                Clear All Comment Lists
-              </>
+              'Clear All Comment Lists'
             )}
           </Button>
         </CardContent>

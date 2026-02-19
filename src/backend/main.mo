@@ -9,9 +9,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import Array "mo:core/Array";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   type Comment = {
     text : Text;
@@ -452,8 +450,10 @@ actor {
     uploaderName : Text,
     image : Storage.ExternalBlob,
   ) : async () {
-    // No authorization check - available to all including guests
-    // This is a public submission feature
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only authenticated users can upload images");
+    };
+
     let now = Time.now();
     let newImage : RatingImage = {
       uploaderName;
