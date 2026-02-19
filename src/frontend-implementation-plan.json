@@ -1,121 +1,95 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Deploy Version 7 to Production",
+  "title": "Fix submit button not responding in production environment",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
+      "summary": "Fix the submit button in CustomerViewPage.tsx so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
       "acceptanceCriteria": [
-        "Version 7 is successfully deployed to production",
-        "All button clicks and data loading functions work correctly in the live production environment",
-        "The production deployment matches the working draft version"
+        "Submit button responds to clicks in production environment",
+        "Data saves correctly when submit button is clicked in production",
+        "Submit button behavior matches between draft and production deployments",
+        "No console errors appear when clicking the submit button"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Verify all route configurations are production-ready and remove any draft-specific debugging code or console logs that should not appear in production"
-        },
-        {
           "path": "frontend/src/pages/CustomerViewPage.tsx",
           "operation": "modify",
-          "description": "Review and ensure all comment generation functionality, device-based restrictions, and list selection features work correctly; remove any temporary debugging statements"
-        },
-        {
-          "path": "frontend/src/pages/LiveListCheckerPage.tsx",
-          "operation": "modify",
-          "description": "Verify username checking, localStorage persistence, and export functionality are production-ready; ensure no draft-only features remain"
-        },
-        {
-          "path": "frontend/src/pages/UploadSectionPage.tsx",
-          "operation": "modify",
-          "description": "Confirm image upload with progress tracking works correctly; verify ExternalBlob usage follows component guidelines and remove any development-only code"
-        },
-        {
-          "path": "frontend/src/pages/AdminPanelPage.tsx",
-          "operation": "modify",
-          "description": "Ensure all admin tabs (comments, images, chat, live lists, settings) are fully functional and properly secured with authorization checks"
-        },
-        {
-          "path": "frontend/src/components/TopSegmentedNav.tsx",
-          "operation": "modify",
-          "description": "Verify navigation links work correctly across all routes and admin access is properly gated"
-        },
-        {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Ensure actor initialization and admin access token handling are production-ready; verify proper error handling for backend connection failures"
-        },
-        {
-          "path": "frontend/src/hooks/useInternetIdentity.ts",
-          "operation": "modify",
-          "description": "Confirm Internet Identity authentication flow works correctly in production environment; ensure proper cleanup on logout"
-        },
-        {
-          "path": "frontend/src/hooks/useAdminComments.ts",
-          "operation": "modify",
-          "description": "Verify all comment management hooks (create, update, delete, bulk operations) handle errors gracefully and display appropriate user feedback"
+          "description": "Review and fix event handler binding for both single and bulk comment generation submit buttons. Ensure onClick handlers are properly bound and not lost during production build optimization. Verify that all async operations (generateSingleComment, generateBulkComments) are properly awaited and error-handled. Add console logging for debugging production issues. Ensure form submission preventDefault is called correctly. Check that all state updates after submission are properly triggering re-renders."
         },
         {
           "path": "frontend/src/hooks/useCommentGenerator.ts",
           "operation": "modify",
-          "description": "Ensure single and bulk comment generation hooks work correctly with proper error handling and loading states"
+          "description": "Review the React Query mutation configurations for generateSingleComment and generateBulkComments. Ensure mutations are properly configured with onSuccess/onError callbacks. Verify that the mutation functions correctly handle the backend actor calls and return values. Add error boundary handling for production build edge cases. Ensure proper query invalidation after successful mutations."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
+      "acceptanceCriteria": [
+        "All submit buttons have properly bound onClick handlers",
+        "Event handlers are correctly bundled in production build",
+        "Form submissions trigger expected backend calls in production"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/admin/AdminCommentsTab.tsx",
+          "operation": "modify",
+          "description": "Review all button onClick handlers for creating lists, adding single comments, bulk uploading comments, deleting comments, and resetting lists. Ensure event handlers use proper arrow function syntax or useCallback to prevent binding issues in production. Verify form submission handling and preventDefault calls. Add proper error handling and loading states for all mutations."
         },
         {
-          "path": "frontend/src/hooks/useLiveListChecker.ts",
+          "path": "frontend/src/components/admin/AdminLiveListTab.tsx",
           "operation": "modify",
-          "description": "Verify live list checking functionality and app/username management work correctly in production"
+          "description": "Review all button onClick handlers for creating apps, adding usernames (bulk and comma-separated), deleting apps, and reset operations. Ensure proper event handler binding using arrow functions or useCallback. Verify that all async operations are properly awaited and have error handling. Ensure state updates trigger proper re-renders after mutations complete."
         },
         {
-          "path": "frontend/src/hooks/useRatingImages.ts",
+          "path": "frontend/src/components/admin/AdminSettingsTab.tsx",
           "operation": "modify",
-          "description": "Confirm image upload, listing, and deletion hooks work correctly; verify ExternalBlob component usage follows guidelines"
+          "description": "Review button onClick handlers for setting and resetting the bulk generator key. Ensure proper event handler binding and async operation handling. Verify that form submissions properly call the backend mutations and handle success/error states correctly in production."
         },
         {
-          "path": "frontend/src/hooks/useChatMessages.ts",
+          "path": "frontend/src/components/admin/AdminChatTab.tsx",
           "operation": "modify",
-          "description": "Ensure chat message fetching and sending work correctly with proper error handling"
+          "description": "Review the send button onClick handler for adding chat messages. Ensure proper event binding and form submission handling. Verify that the mutation is called correctly and state updates occur after successful message submission."
         },
         {
-          "path": "frontend/src/hooks/useBulkGeneratorKey.ts",
+          "path": "frontend/src/pages/UploadSectionPage.tsx",
           "operation": "modify",
-          "description": "Verify bulk generator key management hooks work securely in production"
+          "description": "Review the upload button/form submission handler for rating image uploads. Ensure proper event handler binding and file upload handling. Verify that the ExternalBlob upload with progress tracking works correctly in production builds. Ensure proper error handling and success state updates."
         },
         {
-          "path": "frontend/src/components/SiteLayout.tsx",
+          "path": "frontend/src/pages/LiveListCheckerPage.tsx",
           "operation": "modify",
-          "description": "Ensure layout renders correctly with background image (frontend/public/assets/generated/dreamy-bg.dim_1920x1080.png), navigation, and footer; verify responsive behavior"
+          "description": "Review the check button onClick handler for username checking functionality. Ensure proper event binding and async operation handling. Verify that the mutation correctly calls the backend and updates the results display in production."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
+      "acceptanceCriteria": [
+        "Single comment generation saves and displays results in production",
+        "Bulk comment generation processes and stores data correctly in production",
+        "Generated comments persist in backend storage after submission",
+        "UI updates to show success/failure states after submission"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CustomerViewPage.tsx",
+          "operation": "modify",
+          "description": "Add comprehensive error handling and success feedback for both single and bulk comment generation. Ensure that after successful generation, the UI updates to display the generated comments with proper loading and error states. Verify localStorage tracking of used lists is working correctly. Add console logging to track the complete flow from button click to backend call to UI update for debugging production issues. Ensure proper state management so that generated comments are displayed and persisted correctly."
         },
         {
-          "path": "frontend/src/components/AdminTokenGate.tsx",
+          "path": "frontend/src/hooks/useCommentGenerator.ts",
           "operation": "modify",
-          "description": "Verify authorization wrapper properly shows loading states and access denied messages; ensure admin-only content is properly protected"
+          "description": "Ensure that both generateSingleComment and generateBulkComments mutations properly call the backend methods (generateSingleComment with listName and deviceId, generateBulkComments with listName, count, and accessKey). Verify that successful responses trigger query invalidation for dependent data (like comment list summaries). Add proper error handling with user-friendly error messages. Ensure mutations return the generated data correctly for the UI to consume."
         },
         {
           "path": "frontend/src/lib/deviceId.ts",
           "operation": "modify",
-          "description": "Confirm device ID generation and single-use tracking work correctly across browser sessions"
-        },
-        {
-          "path": "frontend/src/utils/urlParams.ts",
-          "operation": "modify",
-          "description": "Verify URL parameter utilities work correctly with sessionStorage in production environment"
-        },
-        {
-          "path": "frontend/index.css",
-          "operation": "modify",
-          "description": "Review global styles, theme variables, and dark mode setup; ensure production-ready styling with no draft-specific overrides"
-        },
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Verify Tailwind configuration is optimized for production build with proper purging of unused styles"
-        },
-        {
-          "path": "frontend/src/main.tsx",
-          "operation": "modify",
-          "description": "Ensure React Query and Internet Identity provider setup is production-ready with appropriate error boundaries and retry logic"
+          "description": "Review the device ID generation and localStorage persistence logic. Ensure that getDeviceId() consistently returns the same ID across sessions and that markListAsUsed/hasUsedList correctly track which lists have been used for single generation. Verify that localStorage operations don't fail silently in production and add error handling if needed."
         }
       ]
     }

@@ -49,7 +49,7 @@ actor {
   let singleUseTracker = Map.empty<Text, ()>();
 
   // CUSTOMER VIEW
-  public query func getAvailableCommentLists() : async [Text] {
+  public query ({ caller }) func getAvailableCommentLists() : async [Text] {
     var result = List.empty<Text>();
     for ((name, _list) in commentLists.entries()) {
       result.add(name);
@@ -57,7 +57,7 @@ actor {
     result.toArray();
   };
 
-  public query func getCommentListSummary(listName : Text) : async ?CommentListSummary {
+  public query ({ caller }) func getCommentListSummary(listName : Text) : async ?CommentListSummary {
     switch (commentLists.get(listName)) {
       case (null) { null };
       case (?list) {
@@ -76,7 +76,7 @@ actor {
     };
   };
 
-  public shared func generateSingleComment(listName : Text, deviceId : Text) : async Text {
+  public shared ({ caller }) func generateSingleComment(listName : Text, deviceId : Text) : async Text {
     let trackerKey = listName # "_" # deviceId;
 
     // Check if this device has already used the list
@@ -393,7 +393,7 @@ actor {
 
   let ratingImages = List.empty<RatingImage>();
 
-  public shared func uploadRatingImage(
+  public shared ({ caller }) func uploadRatingImage(
     uploaderName : Text,
     image : Storage.ExternalBlob,
   ) : async () {

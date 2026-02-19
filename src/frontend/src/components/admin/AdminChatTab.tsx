@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,14 @@ export default function AdminChatTab() {
   const { data: messages = [], isLoading } = useGetAllChatMessages();
   const addMessage = useAddChatMessage();
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = useCallback(async (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminChatTab] Send message button clicked');
+    
     if (!sender.trim() || !message.trim()) {
       toast.error('Please enter both sender and message');
       return;
@@ -25,9 +32,10 @@ export default function AdminChatTab() {
       setMessage('');
       toast.success('Message added!');
     } catch (error: any) {
+      console.error('[AdminChatTab] Error adding message:', error);
       toast.error(error.message || 'Failed to add message');
     }
-  };
+  }, [sender, message, addMessage]);
 
   const formatDate = (timestamp: bigint) => {
     const date = new Date(Number(timestamp) / 1000000);
@@ -69,14 +77,15 @@ export default function AdminChatTab() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      handleSendMessage();
+                      handleSendMessage(e);
                     }
                   }}
                 />
                 <Button
-                  onClick={handleSendMessage}
+                  onClick={(e) => handleSendMessage(e)}
                   disabled={addMessage.isPending}
                   className="btn-gradient shrink-0"
+                  type="button"
                 >
                   <Send className="w-4 h-4" />
                 </Button>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,7 @@ export default function CustomerViewPage() {
   useEffect(() => {
     const id = getDeviceId();
     setDeviceId(id);
+    console.log('[CustomerView] Device ID initialized:', id);
   }, []);
 
   // Check if selected list is already used when selection changes
@@ -49,13 +50,20 @@ export default function CustomerViewPage() {
       } else {
         setSingleGeneratorError('');
       }
+      console.log('[CustomerView] List selection changed:', selectedListSingle, 'isUsed:', isUsed);
     } else {
       setSingleGeneratorDisabled(false);
       setSingleGeneratorError('');
     }
   }, [selectedListSingle]);
 
-  const handleAdminAccess = () => {
+  const handleAdminAccess = useCallback((e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    console.log('[CustomerView] Admin access button clicked');
+    
     if (adminCode === '7898') {
       setAdminAccess();
       setCodeError('');
@@ -65,9 +73,21 @@ export default function CustomerViewPage() {
       setCodeError('Invalid access code. Please try again.');
       toast.error('Invalid access code');
     }
-  };
+  }, [adminCode, setAdminAccess, navigate]);
 
-  const handleGenerateSingle = async () => {
+  const handleGenerateSingle = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[CustomerView] Generate single button clicked', {
+      selectedList: selectedListSingle,
+      deviceId,
+      disabled: singleGeneratorDisabled,
+      isPending: generateSingle.isPending
+    });
+
     if (!selectedListSingle) {
       toast.error('Please select a comment list');
       return;
@@ -79,10 +99,13 @@ export default function CustomerViewPage() {
     }
 
     try {
+      console.log('[CustomerView] Calling generateSingleComment mutation...');
       const comment = await generateSingle.mutateAsync({
         listName: selectedListSingle,
         deviceId,
       });
+      console.log('[CustomerView] Comment generated successfully:', comment);
+      
       setSingleComment(comment);
       
       // Mark list as used locally
@@ -92,6 +115,7 @@ export default function CustomerViewPage() {
       
       toast.success('Comment generated successfully!');
     } catch (error: any) {
+      console.error('[CustomerView] Error generating single comment:', error);
       const errorMessage = error.message || 'Failed to generate comment';
       
       // If backend rejects due to device restriction, disable the button
@@ -103,9 +127,21 @@ export default function CustomerViewPage() {
       
       toast.error(errorMessage);
     }
-  };
+  }, [selectedListSingle, deviceId, singleGeneratorDisabled, generateSingle]);
 
-  const handleGenerateBulk = async () => {
+  const handleGenerateBulk = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[CustomerView] Generate bulk button clicked', {
+      selectedList: selectedListBulk,
+      count: bulkCount,
+      hasKey: keyStatus?.hasKey,
+      isPending: generateBulk.isPending
+    });
+
     if (!selectedListBulk) {
       toast.error('Please select a comment list');
       return;
@@ -123,26 +159,30 @@ export default function CustomerViewPage() {
     }
 
     try {
+      console.log('[CustomerView] Calling generateBulkComments mutation...');
       const result = await generateBulk.mutateAsync({
         listName: selectedListBulk,
         count,
         accessKey: accessKey || '',
       });
+      console.log('[CustomerView] Bulk comments generated successfully:', result);
+      
       setBulkComments(result.comments);
       toast.success(`Generated ${result.comments.length} comments!`);
     } catch (error: any) {
+      console.error('[CustomerView] Error generating bulk comments:', error);
       toast.error(error.message || 'Failed to generate comments');
     }
-  };
+  }, [selectedListBulk, bulkCount, accessKey, keyStatus, generateBulk]);
 
-  const copyToClipboard = (text: string, index?: number) => {
+  const copyToClipboard = useCallback((text: string, index?: number) => {
     navigator.clipboard.writeText(text);
     if (index !== undefined) {
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);
     }
     toast.success('Copied to clipboard!');
-  };
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -170,9 +210,10 @@ export default function CustomerViewPage() {
                 }}
               />
               <Button
-                onClick={handleAdminAccess}
+                onClick={(e) => handleAdminAccess(e)}
                 size="sm"
                 className="btn-gradient"
+                type="button"
               >
                 Access Admin
               </Button>
@@ -236,9 +277,10 @@ export default function CustomerViewPage() {
             )}
 
             <Button
-              onClick={handleGenerateSingle}
+              onClick={(e) => handleGenerateSingle(e)}
               disabled={!selectedListSingle || generateSingle.isPending || singleGeneratorDisabled}
               className="w-full btn-gradient"
+              type="button"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               {generateSingle.isPending ? 'Generating...' : 'Generate Single Comment'}
@@ -253,6 +295,7 @@ export default function CustomerViewPage() {
                     variant="ghost"
                     onClick={() => copyToClipboard(singleComment)}
                     className="shrink-0"
+                    type="button"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
@@ -321,9 +364,10 @@ export default function CustomerViewPage() {
             )}
 
             <Button
-              onClick={handleGenerateBulk}
+              onClick={(e) => handleGenerateBulk(e)}
               disabled={!selectedListBulk || generateBulk.isPending}
               className="w-full btn-gradient"
+              type="button"
             >
               <Zap className="w-4 h-4 mr-2" />
               {generateBulk.isPending ? 'Generating...' : 'Generate Bulk Comments'}
@@ -337,6 +381,7 @@ export default function CustomerViewPage() {
                     size="sm"
                     variant="outline"
                     onClick={() => copyToClipboard(bulkComments.join('\n'))}
+                    type="button"
                   >
                     <Copy className="w-4 h-4 mr-2" />
                     Copy All
@@ -351,6 +396,7 @@ export default function CustomerViewPage() {
                         variant="ghost"
                         onClick={() => copyToClipboard(comment, index)}
                         className="shrink-0"
+                        type="button"
                       >
                         {copiedIndex === index ? (
                           <Check className="w-4 h-4 text-green-600" />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -41,22 +41,29 @@ export default function LiveListCheckerPage() {
   }, []);
 
   // Save to localStorage whenever data changes
-  const saveToStorage = (data: Partial<StoredData>) => {
+  const saveToStorage = useCallback((data: Partial<StoredData>) => {
     const stored = localStorage.getItem(STORAGE_KEY);
     const current: StoredData = stored ? JSON.parse(stored) : { selectedApps: [], usernames: '', lastResults: null };
     const updated = { ...current, ...data };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  };
+  }, []);
 
-  const handleAppToggle = (appName: string) => {
+  const handleAppToggle = useCallback((appName: string) => {
     const newSelected = selectedApps.includes(appName)
       ? selectedApps.filter(a => a !== appName)
       : [...selectedApps, appName];
     setSelectedApps(newSelected);
     saveToStorage({ selectedApps: newSelected });
-  };
+  }, [selectedApps, saveToStorage]);
 
-  const handleRunCheck = async () => {
+  const handleRunCheck = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[LiveListCheckerPage] Run check button clicked');
+    
     if (selectedApps.length === 0) {
       toast.error('Please select at least one app');
       return;
@@ -78,6 +85,7 @@ export default function LiveListCheckerPage() {
     }
 
     try {
+      console.log('[LiveListCheckerPage] Checking usernames:', usernameList);
       const result = await checkLiveList.mutateAsync(usernameList);
       
       // Filter results to only show selected apps
@@ -90,11 +98,12 @@ export default function LiveListCheckerPage() {
       saveToStorage({ usernames, lastResults: filteredResults });
       toast.success('Check completed successfully!');
     } catch (error: any) {
+      console.error('[LiveListCheckerPage] Error checking usernames:', error);
       toast.error(error.message || 'Failed to run check');
     }
-  };
+  }, [selectedApps, usernames, checkLiveList, saveToStorage]);
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     if (!results) {
       toast.error('No results to export');
       return;
@@ -102,16 +111,12 @@ export default function LiveListCheckerPage() {
 
     const exportData = {
       timestamp: new Date().toISOString(),
-      selectedApps,
-      usernames: usernames.split(/[\n,]/).map(u => u.trim()).filter(u => u.length > 0),
-      results: {
-        totalMatches: Number(results.totalMatches),
-        detailedResults: results.detailedResults.map(r => ({
-          appName: r.appName,
-          matchCount: Number(r.matchCount),
-          matches: r.matches
-        }))
-      }
+      totalMatches: Number(results.totalMatches),
+      results: results.detailedResults.map(r => ({
+        appName: r.appName,
+        matchCount: Number(r.matchCount),
+        matches: r.matches
+      }))
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
@@ -123,172 +128,151 @@ export default function LiveListCheckerPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Results exported successfully!');
-  };
+    toast.success('Results exported!');
+  }, [results]);
 
-  const handleClear = () => {
+  const handleReset = useCallback(() => {
     setSelectedApps([]);
     setUsernames('');
     setResults(null);
     localStorage.removeItem(STORAGE_KEY);
-    toast.success('Data cleared');
-  };
+    toast.success('Form reset!');
+  }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center">
-            <ListChecks className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900">Live List Checker</h1>
-        </div>
-        <p className="text-gray-600 text-lg">Select apps and check usernames against admin lists</p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-3">Live List Checker</h1>
+        <p className="text-gray-600 text-lg">Check if usernames exist in tracked apps/events</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Input Section */}
-        <div className="space-y-6">
-          <Card className="card-pastel">
-            <CardHeader>
-              <CardTitle>Select Apps</CardTitle>
-              <CardDescription>Choose which apps to check against</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {appsLoading ? (
-                <p className="text-gray-500">Loading apps...</p>
-              ) : availableApps.length === 0 ? (
-                <p className="text-gray-500">No apps available. Admin needs to add apps first.</p>
-              ) : (
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {availableApps.map((app) => (
-                    <div key={app} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`app-${app}`}
-                        checked={selectedApps.includes(app)}
-                        onCheckedChange={() => handleAppToggle(app)}
-                      />
-                      <Label
-                        htmlFor={`app-${app}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        {app}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <div className="space-y-6">
+        {/* App Selection */}
+        <Card className="card-pastel">
+          <CardHeader>
+            <CardTitle>Select Apps/Events to Check</CardTitle>
+            <CardDescription>Choose which apps or events to search</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {appsLoading ? (
+              <p className="text-gray-500 text-center py-4">Loading apps...</p>
+            ) : availableApps.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No apps available. Contact admin to add apps.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {availableApps.map((app) => (
+                  <div key={app} className="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200">
+                    <Checkbox
+                      id={`app-${app}`}
+                      checked={selectedApps.includes(app)}
+                      onCheckedChange={() => handleAppToggle(app)}
+                    />
+                    <label
+                      htmlFor={`app-${app}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {app}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-          <Card className="card-pastel">
-            <CardHeader>
-              <CardTitle>Enter Usernames</CardTitle>
-              <CardDescription>One per line or comma-separated</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        {/* Username Input */}
+        <Card className="card-pastel">
+          <CardHeader>
+            <CardTitle>Enter Usernames to Check</CardTitle>
+            <CardDescription>Enter usernames separated by commas or new lines</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="usernames">Usernames</Label>
               <Textarea
+                id="usernames"
                 value={usernames}
                 onChange={(e) => {
                   setUsernames(e.target.value);
                   saveToStorage({ usernames: e.target.value });
                 }}
-                placeholder="username1&#10;username2&#10;username3"
-                className="min-h-[150px] font-mono text-sm"
+                placeholder="user1, user2, user3&#10;or one per line..."
+                rows={6}
+                className="mt-1.5"
               />
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleRunCheck}
-                  disabled={checkLiveList.isPending || selectedApps.length === 0}
-                  className="flex-1 btn-gradient"
-                >
-                  <ListChecks className="w-4 h-4 mr-2" />
-                  {checkLiveList.isPending ? 'Checking...' : 'Run Check'}
-                </Button>
-                <Button
-                  onClick={handleClear}
-                  variant="outline"
-                  size="icon"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
 
-        {/* Results Section */}
-        <div>
+            <div className="flex gap-2">
+              <Button
+                onClick={(e) => handleRunCheck(e)}
+                disabled={checkLiveList.isPending || selectedApps.length === 0}
+                className="flex-1 btn-gradient"
+                type="button"
+              >
+                <ListChecks className="w-4 h-4 mr-2" />
+                {checkLiveList.isPending ? 'Checking...' : 'Run Check'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                type="button"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Results */}
+        {results && (
           <Card className="card-pastel">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Results</CardTitle>
-                  <CardDescription>Match counts and detailed breakdown</CardDescription>
+                  <CardTitle>Check Results</CardTitle>
+                  <CardDescription>Total matches: {Number(results.totalMatches)}</CardDescription>
                 </div>
-                {results && (
-                  <Button
-                    onClick={handleExport}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Export
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExport}
+                  type="button"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export JSON
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
-              {!results ? (
-                <div className="text-center py-12 text-gray-500">
-                  <ListChecks className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>Run a check to see results</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-2xl font-bold text-blue-900">
-                      {Number(results.totalMatches)} Total Matches
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h3 className="font-semibold text-gray-900">Detailed Results:</h3>
-                    {results.detailedResults.length === 0 ? (
-                      <p className="text-gray-500 text-sm">No matches found</p>
+              <div className="space-y-4">
+                {results.detailedResults.map((result, index) => (
+                  <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">{result.appName}</h3>
+                      <span className="text-sm font-medium text-gray-600">
+                        {Number(result.matchCount)} match{Number(result.matchCount) !== 1 ? 'es' : ''}
+                      </span>
+                    </div>
+                    {result.matches.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {result.matches.map((match, i) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"
+                          >
+                            {match}
+                          </span>
+                        ))}
+                      </div>
                     ) : (
-                      results.detailedResults.map((result) => (
-                        <div key={result.appName} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900">{result.appName}</h4>
-                            <span className="text-sm font-medium text-blue-600">
-                              {Number(result.matchCount)} matches
-                            </span>
-                          </div>
-                          {result.matches.length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-600 mb-1">Matched usernames:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {result.matches.map((username, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                                  >
-                                    {username}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))
+                      <p className="text-gray-500 text-sm">No matches found</p>
                     )}
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </CardContent>
           </Card>
-        </div>
+        )}
       </div>
     </div>
   );

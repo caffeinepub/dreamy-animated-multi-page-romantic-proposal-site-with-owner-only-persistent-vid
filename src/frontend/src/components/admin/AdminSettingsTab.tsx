@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,14 @@ export default function AdminSettingsTab() {
   const setKey = useSetBulkGeneratorKey();
   const resetKey = useResetBulkGeneratorKey();
 
-  const handleSetKey = async () => {
+  const handleSetKey = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminSettingsTab] Set key button clicked');
+    
     if (!newKey.trim()) {
       toast.error('Please enter an access key');
       return;
@@ -28,11 +35,19 @@ export default function AdminSettingsTab() {
       setShowKey(false);
       toast.success('Access key updated successfully!');
     } catch (error: any) {
+      console.error('[AdminSettingsTab] Error setting key:', error);
       toast.error(error.message || 'Failed to update key');
     }
-  };
+  }, [newKey, setKey]);
 
-  const handleResetKey = async () => {
+  const handleResetKey = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminSettingsTab] Reset key button clicked');
+    
     if (!confirm('Are you sure you want to reset the access key? Users will not be able to use bulk generation until a new key is set.')) {
       return;
     }
@@ -41,9 +56,10 @@ export default function AdminSettingsTab() {
       await resetKey.mutateAsync();
       toast.success('Access key reset successfully!');
     } catch (error: any) {
+      console.error('[AdminSettingsTab] Error resetting key:', error);
       toast.error(error.message || 'Failed to reset key');
     }
-  };
+  }, [resetKey]);
 
   return (
     <div className="space-y-6">
@@ -78,9 +94,10 @@ export default function AdminSettingsTab() {
 
                 <Button
                   variant="outline"
-                  onClick={handleResetKey}
+                  onClick={(e) => handleResetKey(e)}
                   disabled={resetKey.isPending}
                   className="w-full mt-3"
+                  type="button"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Reset Key
@@ -120,9 +137,10 @@ export default function AdminSettingsTab() {
               </div>
 
               <Button
-                onClick={handleSetKey}
+                onClick={(e) => handleSetKey(e)}
                 disabled={setKey.isPending}
                 className="w-full btn-gradient"
+                type="button"
               >
                 <Key className="w-4 h-4 mr-2" />
                 Update Key

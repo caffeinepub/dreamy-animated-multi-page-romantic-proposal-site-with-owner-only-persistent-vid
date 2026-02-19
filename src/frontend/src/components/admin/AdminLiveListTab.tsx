@@ -1,21 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Plus, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, List, Trash2, RotateCcw, AlertTriangle } from 'lucide-react';
 import {
   useGetAvailableLiveListApps,
   useAddLiveListApp,
@@ -29,16 +19,25 @@ import { toast } from 'sonner';
 export default function AdminLiveListTab() {
   const [newAppName, setNewAppName] = useState('');
   const [selectedApp, setSelectedApp] = useState('');
-  const [usernamesToAdd, setUsernamesToAdd] = useState('');
+  const [addMode, setAddMode] = useState<'bulk' | 'comma'>('bulk');
+  const [bulkUsernames, setBulkUsernames] = useState('');
+  const [commaUsernames, setCommaUsernames] = useState('');
 
-  const { data: apps = [], isLoading } = useGetAvailableLiveListApps();
+  const { data: apps = [] } = useGetAvailableLiveListApps();
   const addApp = useAddLiveListApp();
   const addUsernames = useAddUsernamesToApp();
   const deleteApp = useDeleteLiveListApp();
   const resetApp = useResetUsernamesForApp();
   const resetAll = useResetAllLiveListApps();
 
-  const handleAddApp = async () => {
+  const handleCreateApp = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminLiveListTab] Create app button clicked:', newAppName);
+    
     if (!newAppName.trim()) {
       toast.error('Please enter an app name');
       return;
@@ -47,43 +46,76 @@ export default function AdminLiveListTab() {
     try {
       await addApp.mutateAsync(newAppName.trim());
       setNewAppName('');
-      toast.success('App added successfully!');
+      toast.success('App created successfully!');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to add app');
+      console.error('[AdminLiveListTab] Error creating app:', error);
+      toast.error(error.message || 'Failed to create app');
     }
-  };
+  }, [newAppName, addApp]);
 
-  const handleAddUsernames = async () => {
+  const handleAddUsernames = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminLiveListTab] Add usernames button clicked:', { selectedApp, addMode });
+    
     if (!selectedApp) {
-      toast.error('Please select an app');
-      return;
-    }
-
-    if (!usernamesToAdd.trim()) {
-      toast.error('Please enter at least one username');
-      return;
-    }
-
-    const usernameList = usernamesToAdd
-      .split(/[\n,]/)
-      .map(u => u.trim())
-      .filter(u => u.length > 0);
-
-    if (usernameList.length === 0) {
-      toast.error('Please enter valid usernames');
+      toast.error('Please select an app first');
       return;
     }
 
     try {
-      await addUsernames.mutateAsync({ appName: selectedApp, usernames: usernameList });
-      setUsernamesToAdd('');
-      toast.success(`Added ${usernameList.length} usernames to ${selectedApp}`);
+      let usernames: string[] = [];
+
+      if (addMode === 'bulk') {
+        if (!bulkUsernames.trim()) {
+          toast.error('Please enter usernames');
+          return;
+        }
+        usernames = bulkUsernames
+          .split('\n')
+          .map(u => u.trim())
+          .filter(u => u.length > 0);
+      } else {
+        if (!commaUsernames.trim()) {
+          toast.error('Please enter usernames');
+          return;
+        }
+        usernames = commaUsernames
+          .split(',')
+          .map(u => u.trim())
+          .filter(u => u.length > 0);
+      }
+
+      if (usernames.length === 0) {
+        toast.error('Please enter valid usernames');
+        return;
+      }
+
+      await addUsernames.mutateAsync({ appName: selectedApp, usernames });
+      setBulkUsernames('');
+      setCommaUsernames('');
+      toast.success(`Added ${usernames.length} usernames!`);
     } catch (error: any) {
+      console.error('[AdminLiveListTab] Error adding usernames:', error);
       toast.error(error.message || 'Failed to add usernames');
     }
-  };
+  }, [selectedApp, addMode, bulkUsernames, commaUsernames, addUsernames]);
 
-  const handleDeleteApp = async (appName: string) => {
+  const handleDeleteApp = useCallback(async (appName: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminLiveListTab] Delete app button clicked:', appName);
+    
+    if (!confirm(`Are you sure you want to delete "${appName}"? This action cannot be undone.`)) {
+      return;
+    }
+
     try {
       await deleteApp.mutateAsync(appName);
       if (selectedApp === appName) {
@@ -91,272 +123,273 @@ export default function AdminLiveListTab() {
       }
       toast.success('App deleted successfully!');
     } catch (error: any) {
+      console.error('[AdminLiveListTab] Error deleting app:', error);
       toast.error(error.message || 'Failed to delete app');
     }
-  };
+  }, [selectedApp, deleteApp]);
 
-  const handleResetApp = async (appName: string) => {
+  const handleResetApp = useCallback(async (appName: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminLiveListTab] Reset app button clicked:', appName);
+    
+    if (!confirm(`Are you sure you want to reset all usernames for "${appName}"?`)) {
+      return;
+    }
+
     try {
       await resetApp.mutateAsync(appName);
-      toast.success('App usernames reset successfully!');
+      toast.success('App reset successfully!');
     } catch (error: any) {
+      console.error('[AdminLiveListTab] Error resetting app:', error);
       toast.error(error.message || 'Failed to reset app');
     }
-  };
+  }, [resetApp]);
 
-  const handleResetAll = async () => {
+  const handleResetAll = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[AdminLiveListTab] Reset all button clicked');
+    
+    if (!confirm('Are you sure you want to delete ALL apps and their usernames? This action cannot be undone.')) {
+      return;
+    }
+
     try {
       await resetAll.mutateAsync();
       setSelectedApp('');
-      toast.success('All live list data reset successfully!');
+      toast.success('All apps reset successfully!');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to reset all data');
+      console.error('[AdminLiveListTab] Error resetting all apps:', error);
+      toast.error(error.message || 'Failed to reset all apps');
     }
-  };
+  }, [resetAll]);
 
   return (
     <div className="space-y-6">
       {/* Create New App */}
       <Card className="card-pastel">
         <CardHeader>
-          <CardTitle>Create New App</CardTitle>
-          <CardDescription>Add a new app to the live list system</CardDescription>
+          <div className="flex items-center gap-3">
+            <Plus className="w-6 h-6 text-blue-600" />
+            <div>
+              <CardTitle>Create New App/Event</CardTitle>
+              <CardDescription>Add a new app or event to track usernames</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="new-app-name">App Name</Label>
+            <Label htmlFor="new-app-name">App/Event Name</Label>
             <Input
               id="new-app-name"
               value={newAppName}
               onChange={(e) => setNewAppName(e.target.value)}
-              placeholder="Enter app name..."
+              placeholder="Enter app or event name..."
               className="mt-1.5"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleAddApp();
+                  handleCreateApp();
                 }
               }}
             />
           </div>
           <Button
-            onClick={handleAddApp}
-            disabled={addApp.isPending || !newAppName.trim()}
+            onClick={(e) => handleCreateApp(e)}
+            disabled={addApp.isPending}
             className="w-full btn-gradient"
+            type="button"
           >
             <Plus className="w-4 h-4 mr-2" />
-            {addApp.isPending ? 'Adding...' : 'Add App'}
+            {addApp.isPending ? 'Creating...' : 'Create App/Event'}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Manage Apps */}
+      {/* Manage Existing Apps */}
       <Card className="card-pastel">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <List className="w-6 h-6 text-blue-600" />
             <div>
-              <CardTitle>Manage Apps</CardTitle>
+              <CardTitle>Manage Apps/Events</CardTitle>
               <CardDescription>Add usernames and manage existing apps</CardDescription>
             </div>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  Reset All
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Reset All Live List Data?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete all apps and their usernames from the live list system.
-                    This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleResetAll}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Reset All Data
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {isLoading ? (
-            <p className="text-gray-500">Loading apps...</p>
-          ) : apps.length === 0 ? (
-            <p className="text-gray-500">No apps created yet. Create one above to get started.</p>
-          ) : (
-            <>
-              <div>
-                <Label htmlFor="select-app">Select App</Label>
-                <select
-                  id="select-app"
-                  value={selectedApp}
-                  onChange={(e) => setSelectedApp(e.target.value)}
-                  className="w-full mt-1.5 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Choose an app...</option>
-                  {apps.map((app) => (
-                    <option key={app} value={app}>
-                      {app}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div>
+            <Label htmlFor="select-app">Select App/Event</Label>
+            <select
+              id="select-app"
+              value={selectedApp}
+              onChange={(e) => setSelectedApp(e.target.value)}
+              className="w-full mt-1.5 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Choose an app/event...</option>
+              {apps.map((app) => (
+                <option key={app} value={app}>
+                  {app}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              {selectedApp && (
-                <>
+          {selectedApp && (
+            <>
+              {/* Add Usernames Section */}
+              <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex gap-2">
+                  <Button
+                    variant={addMode === 'bulk' ? 'default' : 'outline'}
+                    onClick={() => setAddMode('bulk')}
+                    size="sm"
+                    type="button"
+                  >
+                    Bulk (Line by Line)
+                  </Button>
+                  <Button
+                    variant={addMode === 'comma' ? 'default' : 'outline'}
+                    onClick={() => setAddMode('comma')}
+                    size="sm"
+                    type="button"
+                  >
+                    Comma Separated
+                  </Button>
+                </div>
+
+                {addMode === 'bulk' ? (
                   <div>
-                    <Label htmlFor="usernames-to-add">Add Usernames</Label>
+                    <Label htmlFor="bulk-usernames">Usernames (one per line)</Label>
                     <Textarea
-                      id="usernames-to-add"
-                      value={usernamesToAdd}
-                      onChange={(e) => setUsernamesToAdd(e.target.value)}
-                      placeholder="username1&#10;username2&#10;username3&#10;(one per line or comma-separated)"
-                      className="mt-1.5 min-h-[120px] font-mono text-sm"
+                      id="bulk-usernames"
+                      value={bulkUsernames}
+                      onChange={(e) => setBulkUsernames(e.target.value)}
+                      placeholder="Enter usernames, one per line..."
+                      rows={6}
+                      className="mt-1.5"
                     />
                   </div>
-
-                  <Button
-                    onClick={handleAddUsernames}
-                    disabled={addUsernames.isPending || !usernamesToAdd.trim()}
-                    className="w-full btn-gradient"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {addUsernames.isPending ? 'Adding...' : 'Add Usernames'}
-                  </Button>
-
-                  <div className="flex gap-2 pt-2">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" className="flex-1">
-                          <RotateCcw className="w-4 h-4 mr-2" />
-                          Reset Usernames
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Reset Usernames for {selectedApp}?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will remove all usernames from this app. The app itself will remain.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleResetApp(selectedApp)}>
-                            Reset Usernames
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" className="flex-1">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete App
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete {selectedApp}?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete this app and all its usernames. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteApp(selectedApp)}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Delete App
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                ) : (
+                  <div>
+                    <Label htmlFor="comma-usernames">Usernames (comma separated)</Label>
+                    <Textarea
+                      id="comma-usernames"
+                      value={commaUsernames}
+                      onChange={(e) => setCommaUsernames(e.target.value)}
+                      placeholder="user1, user2, user3..."
+                      rows={4}
+                      className="mt-1.5"
+                    />
                   </div>
-                </>
-              )}
+                )}
+
+                <Button
+                  onClick={(e) => handleAddUsernames(e)}
+                  disabled={addUsernames.isPending}
+                  className="w-full btn-gradient"
+                  type="button"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {addUsernames.isPending ? 'Adding...' : 'Add Usernames'}
+                </Button>
+              </div>
+
+              {/* App Actions */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={(e) => handleResetApp(selectedApp, e)}
+                  disabled={resetApp.isPending}
+                  className="flex-1"
+                  type="button"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Reset Usernames
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={(e) => handleDeleteApp(selectedApp, e)}
+                  disabled={deleteApp.isPending}
+                  className="flex-1"
+                  type="button"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete App
+                </Button>
+              </div>
             </>
           )}
         </CardContent>
       </Card>
 
-      {/* Current Apps List */}
-      {apps.length > 0 && (
-        <Card className="card-pastel">
-          <CardHeader>
-            <CardTitle>Current Apps ({apps.length})</CardTitle>
-            <CardDescription>All apps in the live list system</CardDescription>
-          </CardHeader>
-          <CardContent>
+      {/* All Apps List */}
+      <Card className="card-pastel">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>All Apps/Events ({apps.length})</CardTitle>
+              <CardDescription>Overview of all tracked apps and events</CardDescription>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={(e) => handleResetAll(e)}
+              disabled={resetAll.isPending || apps.length === 0}
+              type="button"
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Reset All
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {apps.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No apps/events created yet</p>
+          ) : (
             <div className="space-y-2">
               {apps.map((app) => (
                 <div
                   key={app}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                  className="p-4 bg-white rounded-lg border border-gray-200 flex items-center justify-between"
                 >
-                  <span className="font-medium text-gray-900">{app}</span>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      {app}
+                    </Badge>
+                  </div>
                   <div className="flex gap-2">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <RotateCcw className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Reset Usernames for {app}?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will remove all usernames from this app. The app itself will remain.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleResetApp(app)}>
-                            Reset Usernames
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete {app}?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will permanently delete this app and all its usernames. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteApp(app)}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Delete App
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleResetApp(app, e)}
+                      disabled={resetApp.isPending}
+                      type="button"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleDeleteApp(app, e)}
+                      disabled={deleteApp.isPending}
+                      type="button"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,4 +1,73 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-fix-the-submit-button-in-the-customer-view-page-customerviewpage-tsx-so-it-properly-handles-click-events-and-saves-data-in-production-deployment-matching-the-working-behavior-in-draft-mode",
+      "featureTitle": "Fix the submit button in the Customer View page (CustomerViewPage.tsx) so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
+      "files": [
+        "frontend/src/hooks/useCommentGenerator.ts",
+        "frontend/src/pages/CustomerViewPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-review-and-fix-event-handler-binding-for-all-form-submit-buttons-across-the-application-to-ensure-they-work-consistently-in-both-development-and-production-builds",
+      "featureTitle": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
+      "files": [
+        "frontend/src/components/admin/AdminChatTab.tsx",
+        "frontend/src/components/admin/AdminCommentsTab.tsx",
+        "frontend/src/components/admin/AdminLiveListTab.tsx",
+        "frontend/src/components/admin/AdminSettingsTab.tsx",
+        "frontend/src/pages/LiveListCheckerPage.tsx",
+        "frontend/src/pages/UploadSectionPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-verify-that-the-comment-generation-functionality-both-single-and-bulk-correctly-triggers-and-saves-data-through-the-submit-actions-in-production-environment",
+      "featureTitle": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
+      "files": [
+        "frontend/src/hooks/useCommentGenerator.ts",
+        "frontend/src/lib/deviceId.ts",
+        "frontend/src/pages/CustomerViewPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

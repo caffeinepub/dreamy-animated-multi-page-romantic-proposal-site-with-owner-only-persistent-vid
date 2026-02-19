@@ -1,29 +1,83 @@
 {
   "kind": "build_request",
-  "title": "Deploy Version 7 to production",
-  "priority": "normal",
+  "title": "Fix submit button not responding in production environment",
+  "projectName": "Comment Generator",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
-      "target": "both",
+      "text": "Fix the submit button in the Customer View page (CustomerViewPage.tsx) so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-user-submit-not-working",
+          "msg-user-data-entry",
+          "msg-user-draft-working"
         ],
         "quotes": [
-          "Now public or make it live"
+          "submit button not working",
+          "save data and work function",
+          "draft working good but not live working at all"
         ]
       },
       "acceptanceCriteria": [
-        "Version 7 is successfully deployed to production",
-        "All button clicks and data loading functions work correctly in the live production environment",
-        "The production deployment matches the working draft version"
+        "Submit button responds to clicks in production environment",
+        "Data saves correctly when submit button is clicked in production",
+        "Submit button behavior matches between draft and production deployments",
+        "No console errors appear when clicking the submit button"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-assistant-event-handlers"
+        ],
+        "quotes": [
+          "event handlers are properly bound and deployed"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All submit buttons have properly bound onClick handlers",
+        "Event handlers are correctly bundled in production build",
+        "Form submissions trigger expected backend calls in production"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-user-data-entry"
+        ],
+        "quotes": [
+          "data entry",
+          "save data and work function"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Single comment generation saves and displays results in production",
+        "Bulk comment generation processes and stores data correctly in production",
+        "Generated comments persist in backend storage after submission",
+        "UI updates to show success/failure states after submission"
       ]
     }
   ],
-  "constraints": [],
-  "nonGoals": [],
+  "constraints": [
+    "Maintain existing functionality that works in draft mode",
+    "Do not modify the backend actor implementation",
+    "Preserve the current UI/UX design and layout",
+    "Keep the single-actor Motoko architecture unchanged"
+  ],
+  "nonGoals": [
+    "Adding new features beyond fixing the production deployment issue",
+    "Redesigning the form submission flow",
+    "Changing the data structure or backend API",
+    "Modifying authentication or authorization logic"
+  ],
   "imageRequirements": {
     "required": [],
     "edits": []

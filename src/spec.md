@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Deploy Version 7 to production to make the application publicly accessible.
+**Goal:** Fix the submit button in the Customer View page so it responds to clicks and saves data properly in the production environment.
 
 **Planned changes:**
-- Deploy the current draft Version 7 to the production environment
-- Verify all button clicks and data loading functions work correctly in production
-- Ensure production deployment matches the working draft version
+- Fix submit button click event handling in CustomerViewPage.tsx for production deployment
+- Review and ensure all form submit button event handlers are properly bound across the application
+- Verify comment generation (single and bulk) correctly triggers and saves data in production
 
-**User-visible outcome:** The application is live and publicly accessible at the production URL with all features from Version 7 working correctly.
+**User-visible outcome:** Users can successfully click the submit button in the Customer View page to save data and generate comments in the production environment, matching the working behavior in draft mode.

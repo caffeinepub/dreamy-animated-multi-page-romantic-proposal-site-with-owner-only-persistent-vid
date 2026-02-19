@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +23,14 @@ export default function UploadSectionPage() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = useCallback(async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('[UploadSectionPage] Upload button clicked');
+    
     if (!uploaderName.trim()) {
       toast.error('Please enter your name');
       return;
@@ -40,6 +47,7 @@ export default function UploadSectionPage() {
       
       const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
         setUploadProgress(percentage);
+        console.log('[UploadSectionPage] Upload progress:', percentage);
       });
 
       await uploadMutation.mutateAsync({
@@ -58,10 +66,11 @@ export default function UploadSectionPage() {
         setUploadSuccess(false);
       }, 3000);
     } catch (error: any) {
+      console.error('[UploadSectionPage] Error uploading image:', error);
       toast.error(error.message || 'Failed to upload image');
       setUploadProgress(0);
     }
-  };
+  }, [uploaderName, selectedFile, uploadMutation]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -133,9 +142,10 @@ export default function UploadSectionPage() {
               )}
 
               <Button
-                onClick={handleUpload}
+                onClick={(e) => handleUpload(e)}
                 disabled={!uploaderName.trim() || !selectedFile || uploadMutation.isPending}
                 className="w-full btn-gradient"
+                type="button"
               >
                 <Image className="w-4 h-4 mr-2" />
                 {uploadMutation.isPending ? 'Uploading...' : 'Upload Image'}

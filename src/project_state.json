@@ -1,24 +1,43 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [
-    "Production deployment had issue where buttons and data loading did not work (draft worked fine). Resolved by redeploying draft to production."
+  "summary": "Data entry application with submit button functionality",
+  "architectural_notes": [
+    "Submit button event handlers must work in both draft and production environments",
+    "Data entry form requires proper event binding for production deployment"
   ],
-  "isFixRequest": false,
-  "existing_features": [],
-  "new_feature_requests": [
+  "known_issues": [
+    "Submit button works in draft but not in production - event handler deployment issue"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Deploy the current draft Version 7 to the production environment to make the app publicly accessible",
+      "id": "feature-fix-the-submit-button-in-the-customer-view-page-customerviewpage-tsx-so-it-properly-handles-click-events-and-saves-data-in-production-deployment-matching-the-working-behavior-in-draft-mode",
+      "title": "Fix the submit button in the Customer View page (CustomerViewPage.tsx) so it properly handles click events and saves data in production deployment, matching the working behavior in draft mode",
       "reqIds": [
         "REQ-1"
       ],
-      "status": "pending"
+      "version": 1
+    },
+    {
+      "id": "feature-review-and-fix-event-handler-binding-for-all-form-submit-buttons-across-the-application-to-ensure-they-work-consistently-in-both-development-and-production-builds",
+      "title": "Review and fix event handler binding for all form submit buttons across the application to ensure they work consistently in both development and production builds",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-that-the-comment-generation-functionality-both-single-and-bulk-correctly-triggers-and-saves-data-through-the-submit-actions-in-production-environment",
+      "title": "Verify that the comment generation functionality (both single and bulk) correctly triggers and saves data through the submit actions in production environment",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
     }
   ],
-  "projectName": "Deploy Version 7 to production",
+  "new_feature_requests": [],
+  "projectName": "Comment Generator",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
