@@ -1,72 +1,85 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Comments/feedback website where users can create lists and add entries, with an admin panel featuring lock/unlock controls and Internet Identity authentication",
+  "summary": "Admin panel application for managing comment lists and live event/app tracking with username management",
   "architectural_notes": [
-    "Backend: Motoko on Internet Computer",
-    "Frontend: React + TypeScript with Tailwind CSS",
-    "Auth: Internet Identity for admin access",
-    "Navigation flow: creating a new list takes users directly to the entry form"
+    "Admin panel requires authentication via caffeineAdminToken in URL hash",
+    "Two main sections: Comment Lists and Apps/Events (Live Lists)",
+    "Motoko backend for data persistence",
+    "Comment lists support bulk operations (one per line input, file upload)",
+    "Apps/Events track usernames per app/event"
   ],
   "known_issues": [
-    "Live deployment had button click issues - functions not triggering when clicking buttons",
-    "Live deployment navigation broken - creating new list doesn't navigate to entry form like in draft",
-    "JavaScript initialization or routing issue preventing interactive features from working in production"
+    "Bug: Comment list creation button does not create lists (pending fix in Build 1)",
+    "Bug: Live list (Apps/Events) creation button does not create lists (pending fix in Build 2)"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-implement-a-comment-list-management-system-where-users-can-create-lists-with-titles-and-add-comment-entries-to-those-lists",
-      "title": "Implement a comment list management system where users can create lists with titles and add comment entries to those lists",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-an-admin-panel-with-lock-unlock-controls-for-managing-comment-lists",
-      "title": "Create an admin panel with lock/unlock controls for managing comment lists",
+      "id": "feature-wire-the-create-new-comment-list-section-s-create-button-to-call-the-backend-create-function-with-the-entered-list-id-from-the-input-field",
+      "title": "Wire the 'Create New Comment List' section's 'Create' button to call the backend create function with the entered list ID from the input field",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-internet-identity-authentication-for-admin-access-control",
-      "title": "Implement Internet Identity authentication for admin access control",
+      "id": "feature-display-loading-state-on-the-create-button-while-the-backend-request-is-in-progress-and-disable-the-button-during-submission-to-prevent-duplicate-requests",
+      "title": "Display loading state on the 'Create' button while the backend request is in progress, and disable the button during submission to prevent duplicate requests",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-navigation-flow-so-that-creating-a-new-list-immediately-navigates-the-user-to-the-entry-form-for-that-list",
-      "title": "Fix navigation flow so that creating a new list immediately navigates the user to the entry form for that list",
+      "id": "feature-validate-that-the-list-id-input-field-is-not-empty-before-allowing-submission-displaying-an-error-message-if-the-user-attempts-to-create-a-list-without-entering-an-id",
+      "title": "Validate that the list ID input field is not empty before allowing submission, displaying an error message if the user attempts to create a list without entering an ID",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-ensure-all-button-interactions-work-correctly-throughout-the-application-in-live-deployment",
-      "title": "Ensure all button interactions work correctly throughout the application in live deployment",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-cohesive-visual-design-with-a-professional-modern-aesthetic-using-warm-neutral-tones-and-clean-typography",
-      "title": "Apply a cohesive visual design with a professional, modern aesthetic using warm neutral tones and clean typography",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create Admin Panel with comment list creation functionality",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Create Admin Panel with live list (Apps/Events) creation functionality",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add comment management features (lock, delete, add comments, upload file)",
+      "reqIds": [
+        "AR-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add Apps/Events management features with username tracking",
+      "reqIds": [
+        "AR-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Implement backend Motoko function to create a new comment list with a provided list ID, ensuring the list is persisted in the backend state and returns success confirmation",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
   "gameProjectType": "none",
-  "projectName": "App Review",
+  "projectName": "Admin Panel Manager",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

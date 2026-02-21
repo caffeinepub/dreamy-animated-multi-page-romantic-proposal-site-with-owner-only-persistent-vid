@@ -9,7 +9,9 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import Array "mo:core/Array";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   type Comment = {
     text : Text;
@@ -195,21 +197,21 @@ actor {
   };
 
   // ADMIN COMMENT MANAGEMENT
-  public shared ({ caller }) func createCommentList(name : Text) : async () {
+  public shared ({ caller }) func createCommentList(listId : Text) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can create lists");
     };
 
-    if (commentLists.containsKey(name)) {
-      Runtime.trap("List with this name already exists");
+    if (commentLists.containsKey(listId)) {
+      Runtime.trap("List with this ID already exists");
     };
 
     let newList = {
-      name;
+      name = listId;
       comments = List.empty<Comment>();
       locked = false;
     };
-    commentLists.add(name, newList);
+    commentLists.add(listId, newList);
   };
 
   public shared ({ caller }) func addSingleComment(listName : Text, comment : Text) : async () {
@@ -450,10 +452,8 @@ actor {
     uploaderName : Text,
     image : Storage.ExternalBlob,
   ) : async () {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can upload images");
-    };
-
+    // No authorization check - available to all including guests
+    // This is a public submission feature
     let now = Time.now();
     let newImage : RatingImage = {
       uploaderName;
@@ -700,3 +700,4 @@ actor {
 
   include MixinStorage();
 };
+

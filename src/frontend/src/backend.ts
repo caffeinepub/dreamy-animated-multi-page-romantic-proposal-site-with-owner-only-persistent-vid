@@ -164,7 +164,7 @@ export interface backendInterface {
     bulkUploadComments(listName: string, comments: Array<string>): Promise<void>;
     checkLiveList(usernamesToCheck: Array<string>): Promise<LiveListCheckSummary>;
     clearAllCommentLists(): Promise<void>;
-    createCommentList(name: string): Promise<void>;
+    createCommentList(listId: string): Promise<void>;
     deleteComment(listName: string, comment: string): Promise<void>;
     deleteList(listName: string): Promise<void>;
     deleteLiveListApp(appName: string): Promise<void>;

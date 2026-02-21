@@ -2,28 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-implement-a-comment-list-management-system-where-users-can-create-lists-with-titles-and-add-comment-entries-to-those-lists",
-      "featureTitle": "Implement a comment list management system where users can create lists with titles and add comment entries to those lists",
-      "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-an-admin-panel-with-lock-unlock-controls-for-managing-comment-lists",
-      "featureTitle": "Create an admin panel with lock/unlock controls for managing comment lists",
+      "featureId": "feature-wire-the-create-new-comment-list-section-s-create-button-to-call-the-backend-create-function-with-the-entered-list-id-from-the-input-field",
+      "featureTitle": "Wire the 'Create New Comment List' section's 'Create' button to call the backend create function with the entered list ID from the input field",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
@@ -42,16 +22,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-internet-identity-authentication-for-admin-access-control",
-      "featureTitle": "Implement Internet Identity authentication for admin access control",
+      "featureId": "feature-display-loading-state-on-the-create-button-while-the-backend-request-is-in-progress-and-disable-the-button-during-submission-to-prevent-duplicate-requests",
+      "featureTitle": "Display loading state on the 'Create' button while the backend request is in progress, and disable the button during submission to prevent duplicate requests",
       "files": [
-        "frontend/src/components/AdminTokenGate.tsx",
-        "frontend/src/components/LoginButton.tsx",
-        "frontend/src/components/ProfileSetupModal.tsx",
-        "frontend/src/components/SiteLayout.tsx",
-        "frontend/src/components/TopSegmentedNav.tsx",
-        "frontend/src/hooks/useAdminToken.ts",
-        "frontend/src/hooks/useUserProfile.ts"
+        "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -68,8 +42,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-navigation-flow-so-that-creating-a-new-list-immediately-navigates-the-user-to-the-entry-form-for-that-list",
-      "featureTitle": "Fix navigation flow so that creating a new list immediately navigates the user to the entry form for that list",
+      "featureId": "feature-validate-that-the-list-id-input-field-is-not-empty-before-allowing-submission-displaying-an-error-message-if-the-user-attempts-to-create-a-list-without-entering-an-id",
+      "featureTitle": "Validate that the list ID input field is not empty before allowing submission, displaying an error message if the user attempts to create a list without entering an ID",
       "files": [
         "frontend/src/components/admin/AdminCommentsTab.tsx"
       ],
@@ -84,52 +58,6 @@
       ],
       "testIds": [
         "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-all-button-interactions-work-correctly-throughout-the-application-in-live-deployment",
-      "featureTitle": "Ensure all button interactions work correctly throughout the application in live deployment",
-      "files": [
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/pages/CustomerViewPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-apply-a-cohesive-visual-design-with-a-professional-modern-aesthetic-using-warm-neutral-tones-and-clean-typography",
-      "featureTitle": "Apply a cohesive visual design with a professional, modern aesthetic using warm neutral tones and clean typography",
-      "files": [
-        "frontend/src/components/SiteLayout.tsx",
-        "frontend/src/components/TopSegmentedNav.tsx",
-        "frontend/src/components/admin/AdminCommentsTab.tsx",
-        "frontend/src/index.css",
-        "frontend/src/pages/CustomerViewPage.tsx",
-        "frontend/tailwind.config.js"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

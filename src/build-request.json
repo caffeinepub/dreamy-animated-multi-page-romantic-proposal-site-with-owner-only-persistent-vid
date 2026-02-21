@@ -1,112 +1,92 @@
 {
   "kind": "build_request",
-  "title": "Rebuild comments/feedback website with working button interactions and navigation",
-  "projectName": "App Review",
+  "title": "Fix Comment List Creation Functionality",
+  "projectName": "Admin Panel Manager",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement a comment list management system where users can create lists with titles and add comment entries to those lists",
-      "target": "both",
+      "text": "Implement backend Motoko function to create a new comment list with a provided list ID, ensuring the list is persisted in the backend state and returns success confirmation",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-1",
+          "msg-15"
+        ],
+        "quotes": [
+          "Build and fix both comment list creation and live list creation",
+          "stick with original plan"
         ]
       },
       "acceptanceCriteria": [
-        "Users can create new comment lists with custom titles",
-        "Users can add individual comment entries to existing lists",
-        "Lists and comments persist across sessions"
+        "Backend accepts a list ID string and creates a new CommentList record",
+        "Function returns success status after list creation",
+        "Duplicate list IDs are handled gracefully with error message",
+        "Created list appears in getAllCommentLists query results"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Create an admin panel with lock/unlock controls for managing comment lists",
-      "target": "both",
+      "text": "Wire the 'Create New Comment List' section's 'Create' button to call the backend create function with the entered list ID from the input field",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-1",
+          "msg-15"
         ]
       },
       "acceptanceCriteria": [
-        "Admin panel displays all comment lists with their lock status",
-        "Admin can toggle lock/unlock status for each list",
-        "Lock status changes persist and are reflected immediately in the UI"
+        "Clicking 'Create' button triggers backend API call with input value",
+        "Input field is cleared after successful creation",
+        "Success toast notification displays 'Comment list created successfully'",
+        "Error toast displays if creation fails (e.g., duplicate ID)",
+        "Comment list dropdown in 'Manage Comments' section updates to include the new list"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement Internet Identity authentication for admin access control",
-      "target": "both",
+      "text": "Display loading state on the 'Create' button while the backend request is in progress, and disable the button during submission to prevent duplicate requests",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-1"
         ]
       },
       "acceptanceCriteria": [
-        "Admin panel is protected by Internet Identity authentication",
-        "Unauthenticated users cannot access admin features",
-        "Login flow integrates smoothly with the application"
+        "Button shows loading spinner or 'Creating...' text during API call",
+        "Button is disabled while request is in flight",
+        "Button returns to normal 'Create' state after completion"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Fix navigation flow so that creating a new list immediately navigates the user to the entry form for that list",
+      "text": "Validate that the list ID input field is not empty before allowing submission, displaying an error message if the user attempts to create a list without entering an ID",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-1"
         ]
       },
       "acceptanceCriteria": [
-        "After creating a new list, user is automatically taken to the entry form",
-        "Navigation transition is smooth and immediate",
-        "User can begin adding entries without additional clicks"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Ensure all button interactions work correctly throughout the application in live deployment",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All buttons trigger their associated functions when clicked",
-        "No buttons are unresponsive or require multiple clicks",
-        "Button states (loading, disabled) display correctly"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Apply a cohesive visual design with a professional, modern aesthetic using warm neutral tones and clean typography",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Color palette uses warm neutrals with subtle accents",
-        "Typography is clean and readable across all components",
-        "Layout maintains consistent spacing and visual hierarchy",
-        "Design feels professional and suitable for a feedback management tool"
+        "Empty input field prevents form submission",
+        "User sees validation error message: 'Please enter a list ID'",
+        "Button remains enabled but validation prevents API call"
       ]
     }
   ],
   "constraints": [
-    "Use single-actor Motoko architecture for the backend",
-    "Maintain existing Internet Identity authentication integration",
-    "Keep all frontend logic within React + TypeScript + Tailwind stack",
-    "Do not modify immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui"
+    "Maintain single-actor backend architecture with all logic in backend/main.mo",
+    "Use existing AdminCommentsTab.tsx component structure without breaking existing features",
+    "Preserve existing comment management features (lock, delete, add comments, upload file)",
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts or other immutable paths",
+    "Follow existing pattern in useAdminComments.ts for React Query hooks"
   ],
   "nonGoals": [
-    "Adding user registration or custom authentication beyond Internet Identity",
-    "Implementing real-time collaboration features",
-    "Adding export functionality for comments",
-    "Creating mobile-specific layouts or native apps"
+    "Implementing Apps/Events (Live Lists) creation functionality (deferred to Build 2)",
+    "Adding username management features for Apps/Events",
+    "Modifying the visual design or layout of the Admin Panel",
+    "Adding bulk comment list creation",
+    "Implementing comment list export/import features"
   ],
   "imageRequirements": {
     "required": [],

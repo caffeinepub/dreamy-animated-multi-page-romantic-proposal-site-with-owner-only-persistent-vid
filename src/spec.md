@@ -1,14 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Build a comment/feedback management system with list creation, admin controls, and Internet Identity authentication.
+**Goal:** Fix the "Create New Comment List" functionality so administrators can successfully create comment lists through the Admin Panel interface.
 
 **Planned changes:**
-- Implement comment list management where users can create lists with titles and add comment entries
-- Create an admin panel with lock/unlock controls for managing comment lists
-- Integrate Internet Identity authentication to protect admin access
-- Fix navigation flow to automatically redirect users to the entry form after creating a new list
-- Ensure all button interactions work correctly in live deployment
-- Apply a cohesive visual design with warm neutral tones and clean typography
+- Implement backend Motoko function to create and persist new comment lists with provided list IDs
+- Wire the "Create" button in the "Create New Comment List" section to call the backend function with the entered list ID
+- Add input validation to prevent empty list ID submission
+- Display loading state and disable the button during creation to prevent duplicate requests
+- Show success/error toast notifications and update the comment list dropdown after creation
 
-**User-visible outcome:** Users can create and manage comment lists, add entries to those lists, and admins can authenticate via Internet Identity to lock/unlock lists through a dedicated admin panel. Navigation flows smoothly from list creation to entry form, and all buttons respond correctly.
+**User-visible outcome:** Administrators can create new comment lists by entering a list ID and clicking "Create", with immediate feedback and the new list appearing in the dropdown selector.

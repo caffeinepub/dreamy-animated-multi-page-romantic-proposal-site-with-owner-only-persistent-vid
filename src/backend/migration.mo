@@ -1,43 +1,28 @@
-import List "mo:core/List";
 import Map "mo:core/Map";
 import Text "mo:core/Text";
+import List "mo:core/List";
 
 module {
-  type OldComment = {
+  type Comment = {
     text : Text;
     used : Bool;
   };
 
-  type OldCommentList = {
+  type CommentList = {
     name : Text;
-    comments : List.List<OldComment>;
-  };
-
-  type OldActor = {
-    commentLists : Map.Map<Text, OldCommentList>;
-  };
-
-  type NewComment = {
-    text : Text;
-    used : Bool;
-  };
-
-  type NewCommentList = {
-    name : Text;
-    comments : List.List<NewComment>;
+    comments : List.List<Comment>;
     locked : Bool;
   };
 
+  type OldActor = {
+    commentLists : Map.Map<Text, CommentList>;
+  };
+
   type NewActor = {
-    commentLists : Map.Map<Text, NewCommentList>;
+    commentLists : Map.Map<Text, CommentList>;
   };
 
   public func run(old : OldActor) : NewActor {
-    let newCommentLists = old.commentLists.map<Text, OldCommentList, NewCommentList>(
-      func(_name, oldList) {
-        { oldList with locked = false };
-      }
-    );
-    { commentLists = newCommentLists };
+    old;
   };
 };
